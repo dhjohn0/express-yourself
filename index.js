@@ -42,11 +42,4 @@ module.exports = (dirpath, options) => {
   return require('./lib/docs')(app, db, options).then(() => {
     return app;
   });
-
 }
-
-module.exports(__dirname, {}).then((app) => {
-  app.listen(8080, () => {
-    console.log('Listening on 8080');
-  });
-});
