@@ -1,0 +1,30 @@
+{
+  "name": "express-yourself",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "dhjohn0",
+  "license": "MIT",
+  "dependencies": {
+    "bcrypt-nodejs": "0.0.3",
+    "body-parser": "^1.17.2",
+    "checksum": "^0.1.1",
+    "connect-flash": "^0.1.1",
+    "consolidate": "^0.14.5",
+    "cookie-parser": "^1.4.3",
+    "express": "^4.15.3",
+    "express-dinja": "^4.1.3",
+    "express-session": "^1.15.4",
+    "handlebars": "^4.0.10",
+    "handlebars-layouts": "^3.1.4",
+    "lodash": "^4.17.4",
+    "passport": "^0.3.2",
+    "passport-local": "^1.0.0",
+    "pouchdb": "^6.3.4",
+    "uuid": "^3.1.0",
+    "walkdir": "0.0.11"
+  }
+}
