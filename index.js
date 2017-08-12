@@ -31,10 +31,6 @@ module.exports = (dirpath, options) => {
     next(null, req.user);
   });
 
-  di('flash', function (req, res, next) {
-    next(null, req.flash);
-  });
-
   //Setup controllers
   require('./lib/controllers')(app, options);
 
