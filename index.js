@@ -35,8 +35,8 @@ module.exports = (dirpath, options) => {
     next(null, req.flash);
   });
 
-  //Setup routes
-  require('./lib/routes')(app, options);
+  //Setup controllers
+  require('./lib/controllers')(app, options);
 
   //Setup docs
   return require('./lib/docs')(app, db, options).then(() => {
