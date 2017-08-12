@@ -1,3 +1,6 @@
+let bcrypt = require('bcrypt-nodejs');
+let uuid = require('uuid/v1');
+
 module.exports = ({ RestfulController }) => {
   return class UserController extends RestfulController {
     get prefix() { return '/user'; }
@@ -34,8 +37,29 @@ module.exports = ({ RestfulController }) => {
       res.render('user/add');
     }
 
-    create(req, res) {
-      res.redirect('/user/add');
+    create(req, res, db, _) {
+      let user = _.merge(req.body, {
+        type: 'user'
+      });
+
+      return db.query('users/byEmail', { 
+        key: user.email,
+        include_docs: true 
+      }).then(_users => {
+        let users = _users.rows.map(r => r.doc);
+        if (users.length) {
+          req.flash('error', 'Given email is already in use by another account')
+        }else{
+          user.password = bcrypt.hashSync(user.password);
+          user._id = uuid();
+
+          return db.put(user).then(() => {
+            req.flash('success', 'User created');
+          });
+        }
+      }).then(() => {
+        res.redirect('/user/add');
+      });
     }
   };
 }
