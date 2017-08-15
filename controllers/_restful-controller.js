@@ -1,7 +1,7 @@
 let serialize = require('serialize-javascript');
 let CheckYourself = require('check-yourself');
 
-let Controller = require('./controller');
+let Controller = require('./_controller');
 
 let validationInjectMiddleware = (validation) => {
   return function (req, res, next) {

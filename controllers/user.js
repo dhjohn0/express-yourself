@@ -2,89 +2,89 @@ let bcrypt = require('bcrypt-nodejs');
 let uuid = require('uuid/v1');
 let Promise = require('bluebird');
 
-module.exports = ({ RestfulController }) => {
-  return class UserController extends RestfulController {
-    get prefix() { return '/user'; }
+let RestfulController = require('./_restful-controller');
 
-    list(req, res, db) {
-      let start = req.query.start || 0;
-      let length = req.query.length || 10;
-      let sort = {
-        column: req.query.sort || 'email',
-        desc: req.query.desc || false
-      };
+module.exports = class UserController extends RestfulController {
+  get prefix() { return '/user'; }
 
-      return db.paginate('users/forList', start, length, {
-        start_key: [sort.column, !sort.desc ? null : {}],
-        end_key: [sort.column, !sort.desc ? {} : null],
-        descending: sort.desc
-      }).then((p) => {
-        res.render('user/list', {
-          list: p.list,
-          pagination: p.pagination,
-          sort: sort
+  list(req, res, db) {
+    let start = req.query.start || 0;
+    let length = req.query.length || 10;
+    let sort = {
+      column: req.query.sort || 'email',
+      desc: req.query.desc || false
+    };
+
+    return db.paginate('users/forList', start, length, {
+      start_key: [sort.column, !sort.desc ? null : {}],
+      end_key: [sort.column, !sort.desc ? {} : null],
+      descending: sort.desc
+    }).then((p) => {
+      res.render('user/list', {
+        list: p.list,
+        pagination: p.pagination,
+        sort: sort
+      });
+    }).catch(e => {
+      console.error(e);
+    });
+  }
+
+  add(req, res) {
+    res.render('user/add');
+  }
+
+  create(req, res, db, _) {
+    let user = _.merge(req.body, {
+      type: 'user'
+    });
+
+    return db.query('users/byEmail', { 
+      key: user.email,
+      include_docs: true 
+    }).then(_users => {
+      let users = _users.rows.map(r => r.doc);
+      if (users.length) {
+        req.flash('error', 'Given email is already in use by another account')
+      }else{
+        user.password = bcrypt.hashSync(user.password);
+        user._id = uuid();
+
+        return db.put(user).then(() => {
+          req.flash('success', 'User created');
         });
-      }).catch(e => {
-        console.error(e);
-      });
-    }
+      }
+    }).then(() => {
+      res.redirect('/user/add');
+    });
+  }
 
-    add(req, res) {
-      res.render('user/add');
-    }
-
-    create(req, res, db, _) {
-      let user = _.merge(req.body, {
-        type: 'user'
-      });
-
-      return db.query('users/byEmail', { 
-        key: user.email,
-        include_docs: true 
-      }).then(_users => {
-        let users = _users.rows.map(r => r.doc);
-        if (users.length) {
-          req.flash('error', 'Given email is already in use by another account')
-        }else{
-          user.password = bcrypt.hashSync(user.password);
-          user._id = uuid();
-
-          return db.put(user).then(() => {
-            req.flash('success', 'User created');
-          });
+  action(req, res, db) {
+    let ids = Array.isArray(req.body._id) || !req.body._id ? req.body._id : [ req.body._id ];
+    
+    Promise.resolve().then(() => {
+      if (ids && ids.length) {
+        switch (req.body.action) {
+          case "Delete":
+            return db.allDocs({
+              keys: ids, 
+              include_docs: true
+            }).then(result => {
+              let docs = result.rows.map(row => {
+                row.doc._deleted = true;
+                return row.doc;
+              });
+              req.flash('success', 'Users deleted');
+              return db.bulkDocs(docs);
+            })
         }
-      }).then(() => {
-        res.redirect('/user/add');
-      });
-    }
-
-    action(req, res, db) {
-      let ids = Array.isArray(req.body._id) || !req.body._id ? req.body._id : [ req.body._id ];
+      }else{
+        req.flash('error', 'No users selected');
+      }
       
-      Promise.resolve().then(() => {
-        if (ids && ids.length) {
-          switch (req.body.action) {
-            case "Delete":
-              return db.allDocs({
-                keys: ids, 
-                include_docs: true
-              }).then(result => {
-                let docs = result.rows.map(row => {
-                  row.doc._deleted = true;
-                  return row.doc;
-                });
-                req.flash('success', 'Users deleted');
-                return db.bulkDocs(docs);
-              })
-          }
-        }else{
-          req.flash('error', 'No users selected');
-        }
-        
-      }).then(() => {
-        res.redirect('/user/list');
-      });
-      
-    }
-  };
-}
+    }).then(() => {
+      res.redirect('/user/list');
+    });
+    
+  }
+};

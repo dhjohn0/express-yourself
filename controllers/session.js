@@ -1,28 +1,28 @@
 let bcrypt = require('bcrypt-nodejs');
 let uuid = require('uuid/v1');
+let passport = require('passport');
 
-module.exports = ({ Controller, passport }) => {
-  return class SessionController extends Controller {
+let Controller = require('./_controller');
 
-    get get() {
-      return {
-        '/login': function (req, res) {
-          res.render('session/login');
-        }
-      };
-    }
+module.exports = class SessionController extends Controller {
+  get get() {
+    return {
+      '/login': function (req, res) {
+        res.render('session/login');
+      }
+    };
+  }
 
-    get post() {
-      return {
-        '/login': [
-          passport.authenticate('login', {
-            successRedirect: '/',
-            failureRedirect: '/login',
-            failureFlash: 'Invalid email and/or password',
-            successFlash: 'Welcome!'
-          })
-        ]
-      };
-    }
+  get post() {
+    return {
+      '/login': [
+        passport.authenticate('login', {
+          successRedirect: '/',
+          failureRedirect: '/login',
+          failureFlash: 'Invalid email and/or password',
+          successFlash: 'Welcome!'
+        })
+      ]
+    };
   }
 }
