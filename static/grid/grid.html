@@ -35,97 +35,98 @@ options = {
 }
 
 -->
-
-<div class="row">
-  <div class="col-xs-12">
-    <div class="form-group">
-      {{#each options.actions:a}}
-        {{#if list.length || .showOnEmpty}}
-          {{#if .html}}
-            {{{.html}}}
-          {{elseif .href}}
-            <a href="{{{.href}}}" class="action btn btn-default btn-sm btn-xxs-block {{{.classes}}}">{{a}}</a>
-          {{else}}
-            <input type="submit" class="action btn btn-default btn-sm btn-xxs-block {{{.classes}}}" value="{{a}}" />
-          {{/if}}
-        {{/if}}
-      {{/each}}
-    </div>
-  </div>
-</div>
-{{#if list.length}}
+<form action="{{options.url}}" method="POST">
   <div class="row">
     <div class="col-xs-12">
-      <div class="table-responsive">
-        <table class="table table-striped table-bordered">
-          {{#unless options.hideHeader}}
-            <thead>
-              <tr>
-                {{#each options.columns:c}}
-                  <th classes="{{{.classes}}}">
-                    {{#if .isId}}
-                      <input type="checkbox" class="select-all" title="Select All" />
-                    {{elseif .sortable || .sortable === undefined}}
-                      <a href="{{{options.url}}}{{#if options.url && options.url.indexOf('?') >= 0}}&{{else}}?{{/if}}sort={{{c}}}{{#if options.sort.column === c && !options.sort.desc}}&desc=true{{/if}}">
-                        {{#if .title}}{{{.title}}}{{else}}{{{c}}}{{/if}}
-                        {{#if options.sort.column === c}}
-                          <span class="glyphicon glyphicon-triangle-{{#if options.sort.desc}}bottom{{else}}top{{/if}}"></span>
-                        {{/if}}
-                      </a>
-                    {{else}}
-                      {{#if .title}}{{{.title}}}{{else}}{{{c}}}{{/if}}
-                    {{/if}}
-                  </th>
-                {{/each}}
-              </tr>
-            </thead>
-          {{/unless}}
-          <tbody>
-            {{#each list:i}}
-              <tr class="{{#if !options.rowClasses.predicate || options.rowClasses.predicate(., i)}}{{{options.rowClasses.classes}}}{{/if}}">
-                {{#each options.columns:c}}
-                  <td class="{{{.classes}}}">
-                    {{#if .isId}}
-                      <input type="checkbox" class="id-checkbox" name="{{{c}}}" value="{{{list[i][c]}}}" />
-                    {{elseif .formatter && .template}}
-                      {{{ runTemplate(.formatter(list[i][c], c, list[i]), .template) }}}
-                    {{elseif .formatter}}
-                      {{{ .formatter(list[i][c], c, list[i]) }}}
-                    {{elseif .template}}
-                      {{{ runTemplate(list[i], .template) }}}
-                    {{else}}
-                      {{list[i][c]}}
-                    {{/if}}
-                  </td>
-                {{/each}}
-              </tr>
-            {{/each}}
-          </tbody>
-        </table>
+      <div class="form-group">
+        {{#each options.actions:a}}
+          {{#if list.length || .showOnEmpty}}
+            {{#if .html}}
+              {{{.html}}}
+            {{elseif .href}}
+              <a href="{{{.href}}}" class="action btn btn-default btn-sm btn-xxs-block {{{.classes}}}">{{a}}</a>
+            {{else}}
+              <input type="submit" name="action" class="action btn btn-default btn-sm btn-xxs-block {{{.classes}}}" value="{{a}}" />
+            {{/if}}
+          {{/if}}
+        {{/each}}
       </div>
     </div>
   </div>
-  {{#if pagination}}
+  {{#if list.length}}
     <div class="row">
-      <div class="col-xs-4">
-        {{#if pagination.previous || pagination.previous === 0}}
-          <a href="{{{options.url}}}{{#if options.url && options.url.indexOf('?') >= 0}}&{{else}}?{{/if}}start={{pagination.previous}}&sort={{{options.sort.column}}}{{#if options.sort.desc}}&desc=true{{/if}}">Prev</a>
-        {{/if}}
-      </div>
-      <div class="col-xs-4 text-center">
-        {{#if pagination.start}}
-          Displaying {{pagination.start}}{{#if pagination.end}} to {{pagination.end}}{{/if}}
-        {{/if}}
-      </div>
-      <div class="col-xs-4 text-right">
-        {{#if pagination.next || pagination.next === 0}}
-          <a href="{{{options.url}}}{{#if options.url && options.url.indexOf('?') >= 0}}&{{else}}?{{/if}}start={{pagination.next}}&sort={{{options.sort.column}}}{{#if options.sort.desc}}&desc=true{{/if}}">Next</a>
-        {{/if}}
+      <div class="col-xs-12">
+        <div class="table-responsive">
+          <table class="table table-striped table-bordered">
+            {{#unless options.hideHeader}}
+              <thead>
+                <tr>
+                  {{#each options.columns:c}}
+                    <th classes="{{{.classes}}}">
+                      {{#if .isId}}
+                        <input type="checkbox" class="select-all" title="Select All" />
+                      {{elseif .sortable || .sortable === undefined}}
+                        <a href="{{{options.url}}}{{#if options.url && options.url.indexOf('?') >= 0}}&{{else}}?{{/if}}sort={{{c}}}{{#if options.sort.column === c && !options.sort.desc}}&desc=true{{/if}}">
+                          {{#if .title}}{{{.title}}}{{else}}{{{c}}}{{/if}}
+                          {{#if options.sort.column === c}}
+                            <span class="glyphicon glyphicon-triangle-{{#if options.sort.desc}}bottom{{else}}top{{/if}}"></span>
+                          {{/if}}
+                        </a>
+                      {{else}}
+                        {{#if .title}}{{{.title}}}{{else}}{{{c}}}{{/if}}
+                      {{/if}}
+                    </th>
+                  {{/each}}
+                </tr>
+              </thead>
+            {{/unless}}
+            <tbody>
+              {{#each list:i}}
+                <tr class="{{#if !options.rowClasses.predicate || options.rowClasses.predicate(., i)}}{{{options.rowClasses.classes}}}{{/if}}">
+                  {{#each options.columns:c}}
+                    <td class="{{{.classes}}}">
+                      {{#if .isId}}
+                        <input type="checkbox" class="id-checkbox" name="{{{c}}}" value="{{{list[i][c]}}}" />
+                      {{elseif .formatter && .template}}
+                        {{{ runTemplate(.formatter(list[i][c], c, list[i]), .template) }}}
+                      {{elseif .formatter}}
+                        {{{ .formatter(list[i][c], c, list[i]) }}}
+                      {{elseif .template}}
+                        {{{ runTemplate(list[i], .template) }}}
+                      {{else}}
+                        {{list[i][c]}}
+                      {{/if}}
+                    </td>
+                  {{/each}}
+                </tr>
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
+    {{#if pagination}}
+      <div class="row">
+        <div class="col-xs-4">
+          {{#if pagination.previous || pagination.previous === 0}}
+            <a href="{{{options.url}}}{{#if options.url && options.url.indexOf('?') >= 0}}&{{else}}?{{/if}}start={{pagination.previous}}&sort={{{options.sort.column}}}{{#if options.sort.desc}}&desc=true{{/if}}">Prev</a>
+          {{/if}}
+        </div>
+        <div class="col-xs-4 text-center">
+          {{#if pagination.start}}
+            Displaying {{pagination.start}}{{#if pagination.end}} to {{pagination.end}}{{/if}}
+          {{/if}}
+        </div>
+        <div class="col-xs-4 text-right">
+          {{#if pagination.next || pagination.next === 0}}
+            <a href="{{{options.url}}}{{#if options.url && options.url.indexOf('?') >= 0}}&{{else}}?{{/if}}start={{pagination.next}}&sort={{{options.sort.column}}}{{#if options.sort.desc}}&desc=true{{/if}}">Next</a>
+          {{/if}}
+        </div>
+      </div>
+    {{/if}}
+  {{elseif options.noResultsMessage}}
+    {{options.noResultsMessage}}
+  {{else}}
+    <h3>No results found</h3>
   {{/if}}
-{{elseif options.noResultsMessage}}
-  {{options.noResultsMessage}}
-{{else}}
-  <h3>No results found</h3>
-{{/if}}
+</form>

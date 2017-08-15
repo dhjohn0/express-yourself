@@ -11,6 +11,7 @@ module.exports = (dirpath, options) => {
 
   //Setup db connection
   let db = new PouchDB(options.db);
+  require('./lib/helpers/paginate')(db);
 
   //Setup express
   let app = require('./lib/express')(options);

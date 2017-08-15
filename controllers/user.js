@@ -1,41 +1,32 @@
 let bcrypt = require('bcrypt-nodejs');
 let uuid = require('uuid/v1');
+let Promise = require('bluebird');
 
 module.exports = ({ RestfulController }) => {
   return class UserController extends RestfulController {
     get prefix() { return '/user'; }
 
-    get validation() { 
-      return {
-        strict: true,
-        fields: [
-          { 
-            name: 'email',
-            checks: [ 
-              { test: 'required', message: 'Email is required' },
-              { test: 'email', message: 'Email must be a valid email address' }
-            ]
-          }, { 
-            name: 'password',
-            checks: [ 
-              { test: 'required', message: 'Password is required' }
-            ]
-          }, {
-            name: /^phone\.[0-9]+$/,
-            errorName: 'phone',
-            checks: [
-              { 
-                test: /^([2-9]\d{2})(\D*)([2-9]\d{2})(\D*)(\d{4})$/,
-                message: 'Invalid phone'
-              }
-            ]
-          }
-        ]
-      };
-    }
-
     list(req, res, db) {
-      res.render('user/list');
+      let start = req.query.start || 0;
+      let length = req.query.length || 10;
+      let sort = {
+        column: req.query.sort || 'email',
+        desc: req.query.desc || false
+      };
+
+      return db.paginate('users/forList', start, length, {
+        start_key: [sort.column, !sort.desc ? null : {}],
+        end_key: [sort.column, !sort.desc ? {} : null],
+        descending: sort.desc
+      }).then((p) => {
+        res.render('user/list', {
+          list: p.list,
+          pagination: p.pagination,
+          sort: sort
+        });
+      }).catch(e => {
+        console.error(e);
+      });
     }
 
     add(req, res) {
@@ -65,6 +56,35 @@ module.exports = ({ RestfulController }) => {
       }).then(() => {
         res.redirect('/user/add');
       });
+    }
+
+    action(req, res, db) {
+      let ids = Array.isArray(req.body._id) || !req.body._id ? req.body._id : [ req.body._id ];
+      
+      Promise.resolve().then(() => {
+        if (ids && ids.length) {
+          switch (req.body.action) {
+            case "Delete":
+              return db.allDocs({
+                keys: ids, 
+                include_docs: true
+              }).then(result => {
+                let docs = result.rows.map(row => {
+                  row.doc._deleted = true;
+                  return row.doc;
+                });
+                req.flash('success', 'Users deleted');
+                return db.bulkDocs(docs);
+              })
+          }
+        }else{
+          req.flash('error', 'No users selected');
+        }
+        
+      }).then(() => {
+        res.redirect('/user/list');
+      });
+      
     }
   };
 }

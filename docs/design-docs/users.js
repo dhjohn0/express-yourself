@@ -18,6 +18,15 @@ module.exports = {
 
         emit(doc.email, null);
       }
+    },
+    forList: {
+      map: function (doc) {
+        if (!doc || !doc.type || doc.type !== 'user') 
+          return;
+        for (var key in doc) {
+          emit([key , doc[key]], null);
+        }
+      }
     }
   }
 }
