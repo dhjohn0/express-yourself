@@ -36,6 +36,7 @@ module.exports = class UserController extends RestfulController {
 
   create(req, res, db, _) {
     let user = _.merge(req.body, {
+      enabled: true,
       type: 'user'
     });
 
@@ -64,27 +65,44 @@ module.exports = class UserController extends RestfulController {
     
     Promise.resolve().then(() => {
       if (ids && ids.length) {
-        switch (req.body.action) {
-          case "Delete":
-            return db.allDocs({
-              keys: ids, 
-              include_docs: true
-            }).then(result => {
-              let docs = result.rows.map(row => {
+        return db.allDocs({
+          keys: ids, 
+          include_docs: true
+        }).then(result => {
+          let docs = result.rows.map(row => {
+            switch (req.body.action) {
+              case "Delete":
                 row.doc._deleted = true;
-                return row.doc;
-              });
+                break;
+              case "Enable":
+                row.doc.enabled = true;
+                break;
+              case "Disable":
+                row.doc.enabled = false;
+                break;
+            }
+            return row.doc;
+          });
+          switch (req.body.action) {
+            case "Delete":
               req.flash('success', 'Users deleted');
-              return db.bulkDocs(docs);
-            })
-        }
+              break;
+            case "Enable":
+              req.flash('success', 'Users enabled');
+              break;
+            case "Disable":
+              req.flash('success', 'Users disabled');
+              break;
+          }
+          return db.bulkDocs(docs);
+        })
       }else{
         req.flash('error', 'No users selected');
       }
       
-    }).then(() => {
-      res.redirect('/user/list');
-    });
+  }).then(() => {
+    res.redirect('/user/list');
+  });
     
   }
 };
