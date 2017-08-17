@@ -1,0 +1,14 @@
+{{#extend "layout"}}
+
+  {{#append "body"}}
+    <h2>{{header}}</h2>
+    <ul>
+      {{#each errors}}
+        <li>
+          <strong>{{@key}}</strong>: {{.}}
+        </li>
+      {{/each}}
+    </ul>
+  {{/append}}
+
+{{/extend}}
