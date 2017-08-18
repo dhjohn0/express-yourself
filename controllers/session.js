@@ -9,6 +9,10 @@ module.exports = class SessionController extends Controller {
     return {
       '/login': function (req, res) {
         res.render('session/login');
+      },
+      '/logout': (req, res) => {
+        req.logout();
+        res.redirect('/');
       }
     };
   }
@@ -22,7 +26,11 @@ module.exports = class SessionController extends Controller {
           failureFlash: 'Invalid email and/or password',
           successFlash: 'Welcome!'
         })
-      ]
+      ],
+      '/logout': (req, res) => {
+        req.logout();
+        res.redirect('/');
+      }
     };
   }
 }
