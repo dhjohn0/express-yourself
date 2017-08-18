@@ -35,7 +35,7 @@ options = {
 }
 
 -->
-<form action="{{options.url}}" method="POST">
+<form action="{{options.actionUrl}}" method="POST">
   <div class="row">
     <div class="col-xs-12">
       <div class="form-group">
@@ -46,7 +46,7 @@ options = {
             {{elseif .href}}
               <a href="{{{.href}}}" class="action btn btn-default btn-sm btn-xxs-block {{{.classes}}}">{{a}}</a>
             {{else}}
-              <input type="submit" name="action" class="action btn btn-default btn-sm btn-xxs-block {{{.classes}}}" value="{{a}}" />
+              <input type="submit" name="action" class="action btn btn-default btn-sm btn-xxs-block {{{.classes}}}" value="{{a}}" twoway="false" />
             {{/if}}
           {{/if}}
         {{/each}}
@@ -86,7 +86,7 @@ options = {
                   {{#each options.columns:c}}
                     <td class="{{{.classes}}}">
                       {{#if .isId}}
-                        <input type="checkbox" class="id-checkbox" name="{{{c}}}" value="{{{list[i][c]}}}" />
+                        <input type="checkbox" class="id-checkbox" name="{{c}}" value="{{list[i][c]}}" checked="{{false}}" />
                       {{elseif .formatter && .template}}
                         {{{ runTemplate(.formatter(list[i][c], c, list[i]), .template) }}}
                       {{elseif .formatter}}
