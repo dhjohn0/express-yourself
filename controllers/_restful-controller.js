@@ -53,20 +53,20 @@ module.exports = class RestfulController extends Controller {
 
   get post() {
     return {
-      '/': !this.create ? [] : [validationMiddleware(this.validation), this.create],
+      '/': !this.create ? [] : [ validationMiddleware(this.validation), this.create ],
       '/action': !this.action ? [] : this.action
     };
   }
 
   get put() {
     return {
-      '/:id': !this.update ? [] : [validationMiddleware(this.validation), this.update]
+      '/:id': !this.update ? [] : [ validationMiddleware(this.validation), this.update ]
     };
   }
 
   get delete() {
     return {
-      '/:id': !this.update ? [] : [validationMiddleware(this.validation), this.delete]
+      '/:id': !this.update ? [] : [ validationMiddleware(this.validation), this.delete ]
     };
   }
 }
