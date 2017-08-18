@@ -28,8 +28,21 @@ module.exports = (dirpath, options) => {
   di.value('passport', passport);
 
   di('user', function (req, res, next) {
-    res.locals.user = req.user;
+    //res.locals.user = req.user;
     next(null, req.user);
+  });
+
+  //Build global locals
+  app.use(function (req, res, next) {
+    res.locals.flash = {
+      success: req.flash('success'),
+      info: req.flash('info'),
+      warn: req.flash('warn'),
+      error: req.flash('error')
+    };
+
+    res.locals.user = req.user;
+    next();
   });
 
   //Setup controllers
