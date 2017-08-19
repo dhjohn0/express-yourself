@@ -54,7 +54,7 @@ module.exports = (dirpath, options) => {
   require('./lib/controllers')(app, log, options);
 
   //Setup docs
-  return require('./lib/docs')(app, db, options).then(() => {
+  return require('./lib/docs')(app, db, log, options).then(() => {
     return app;
   });
 }
