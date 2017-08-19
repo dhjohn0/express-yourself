@@ -6,9 +6,8 @@ options = {
     Add: { href: '/add', showOnEmpty: true },
     Delete: { classes: 'btn-danger' }
   },
-  rowClasses: {
-    predicate: function (val, index) { return !val.enabled },
-    classes: 'disabled'
+  rowClasses: function (val, index) { 
+    return !val.enabled ? 'disabled' : ''; 
   },
   sort: {
     column: 'fullName',
@@ -82,7 +81,11 @@ options = {
             {{/unless}}
             <tbody>
               {{#each list:i}}
-                <tr class="{{#if !options.rowClasses.predicate || options.rowClasses.predicate(., i)}}{{{options.rowClasses.classes}}}{{/if}}">
+                <tr class="{{#if typeof(options.rowClasses) === 'string'}}
+                  {{runTemplate(., options.rowClasses)}}
+                {{elseif options.rowClasses}}
+                  {{{options.rowClasses(., i)}}}
+                {{/if}}">
                   {{#each options.columns:c}}
                     <td class="{{{.classes}}}">
                       {{#if .isId}}
@@ -109,7 +112,7 @@ options = {
       <div class="row">
         <div class="col-xs-4">
           {{#if pagination.previous || pagination.previous === 0}}
-            <a href="{{{options.url}}}{{#if options.url && options.url.indexOf('?') >= 0}}&{{else}}?{{/if}}start={{pagination.previous}}&sort={{{options.sort.column}}}{{#if options.sort.desc}}&desc=true{{/if}}">Prev</a>
+            <a href="{{{options.url}}}{{#if options.url && options.url.indexOf('?') >= 0}}&{{else}}?{{/if}}start={{pagination.previous}}&length={{pagination.length}}&sort={{{options.sort.column}}}{{#if options.sort.desc}}&desc=true{{/if}}">Prev</a>
           {{/if}}
         </div>
         <div class="col-xs-4 text-center">
@@ -119,7 +122,7 @@ options = {
         </div>
         <div class="col-xs-4 text-right">
           {{#if pagination.next || pagination.next === 0}}
-            <a href="{{{options.url}}}{{#if options.url && options.url.indexOf('?') >= 0}}&{{else}}?{{/if}}start={{pagination.next}}&sort={{{options.sort.column}}}{{#if options.sort.desc}}&desc=true{{/if}}">Next</a>
+            <a href="{{{options.url}}}{{#if options.url && options.url.indexOf('?') >= 0}}&{{else}}?{{/if}}start={{pagination.next}}&length={{pagination.length}}&sort={{{options.sort.column}}}{{#if options.sort.desc}}&desc=true{{/if}}">Next</a>
           {{/if}}
         </div>
       </div>
