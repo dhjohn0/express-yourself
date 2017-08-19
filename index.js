@@ -36,6 +36,10 @@ module.exports = (dirpath, options) => {
   });
   di.value('log', log);
 
+  //Setup Mailer
+  let mailer = require('./lib/mailer')(options, db, handlebars, log);
+  di.value('mailer', mailer);
+
   //Build global locals
   app.use(function (req, res, next) {
     res.locals.flash = {
@@ -51,6 +55,8 @@ module.exports = (dirpath, options) => {
 
   //Setup controllers
   require('./lib/controllers')(app, log, options);
+
+  //mailer.send('dhjohn0@gmail.com', 'Test', '<strong>HELLO!</strong>');
 
   //Setup docs
   return require('./lib/docs')(app, db, log, options).then(() => {
