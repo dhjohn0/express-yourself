@@ -23,7 +23,10 @@ module.exports = class UserController extends RestfulController {
       });
 
       return res.json({
-        list: p.list,
+        list: p.list.map(user => {
+          delete user.password;
+          return user;
+        }),
         pagination: p.pagination,
         sort: sort
       });
