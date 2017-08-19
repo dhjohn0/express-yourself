@@ -36,10 +36,6 @@ let validationMiddleware = (validation) => {
 }
 
 module.exports = class RestfulController extends Controller {
-  constructor(router) {
-    super(router);
-  }
-
   get validation() { return undefined; }
 
   get get() {
