@@ -13,6 +13,9 @@ module.exports = (dirpath, options) => {
   let db = new PouchDB(options.db);
   require('./lib/helpers/paginate')(db);
 
+  //Setup logging
+  let log = require('./lib/logging')(options);
+
   //Setup express
   let app = require('./lib/express')(options);
 
@@ -31,6 +34,7 @@ module.exports = (dirpath, options) => {
     //res.locals.user = req.user;
     next(null, req.user);
   });
+  di.value('log', log);
 
   //Build global locals
   app.use(function (req, res, next) {
@@ -46,7 +50,7 @@ module.exports = (dirpath, options) => {
   });
 
   //Setup controllers
-  require('./lib/controllers')(app, options);
+  require('./lib/controllers')(app, log, options);
 
   //Setup docs
   return require('./lib/docs')(app, db, options).then(() => {
