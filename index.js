@@ -31,9 +31,8 @@ module.exports = (dirpath, options) => {
   di.value('handlebars', handlebars);
   di.value('passport', passport);
 
-  di('user', function (req, res, next) {
-    //res.locals.user = req.user;
-    next(null, req.user);
+  di.factory('user', function (req) {
+    return req.user;
   });
   di.value('log', log);
 
