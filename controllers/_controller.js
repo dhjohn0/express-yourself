@@ -27,7 +27,11 @@ module.exports = class Controller {
             }).catch(err => {
               this.log.error(err);
               res.status(500);
-              res.send(err.toString());
+              res.send(
+`<html lang="en"><head><meta charset="utf-8"><title>Error</title></head>
+<body><pre>${err.stack ? err.stack.replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/ /g, '&nbsp;').replace(/\n/g, '<br/>') : ''}</pre>
+</body></html>`
+              );
             });
           }
         });
