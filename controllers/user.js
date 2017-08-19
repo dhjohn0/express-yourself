@@ -8,26 +8,37 @@ module.exports = class UserController extends RestfulController {
   get prefix() { return '/user'; }
 
   list(req, res, db) {
-    let start = req.query.start || 0;
-    let length = req.query.length || 10;
+    let start = parseInt(req.query.start) || 0;
+    let length = parseInt(req.query.length) || 10;
     let sort = {
       column: req.query.sort || 'email',
-      desc: req.query.desc || false
+      desc: req.query.desc === 'true' || false
     };
 
-    return db.paginate('users/forList', start, length, {
-      start_key: [sort.column, !sort.desc ? null : {}],
-      end_key: [sort.column, !sort.desc ? {} : null],
-      descending: sort.desc
-    }).then((p) => {
-      res.render('user/list', {
-        list: p.list,
-        pagination: p.pagination,
-        sort: sort
+    if (req.headers && req.headers['accept'] && req.headers['accept'].toLowerCase().indexOf('application/json') >= 0) {
+      return db.paginate('users/forList', start, length, {
+        start_key: [sort.column, !sort.desc ? null : {}],
+        end_key: [sort.column, !sort.desc ? {} : null],
+        descending: sort.desc
+      }).then((p) => {
+        return res.json({
+          list: p.list,
+          pagination: p.pagination,
+          sort: sort
+        });
+      }).catch(e => {
+        console.error(e);
       });
-    }).catch(e => {
-      console.error(e);
-    });
+    }else{
+      return res.render('user/list', {
+        query: {
+          start,
+          length,
+          sort: sort.column,
+          desc: sort.desc
+        }
+      });
+    }
   }
 
   add(req, res) {
