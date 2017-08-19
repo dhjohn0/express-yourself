@@ -10,8 +10,8 @@ module.exports = class SessionController extends Controller {
       '/login': function (req, res) {
         res.render('session/login');
       },
-      '/logout': (req, res, user, log) => {
-        log.info(`User ${user.email} logged out successfully`);
+      '/logout': (req, res, user) => {
+        this.log.info(`User ${user.email} logged out successfully`);
         req.logout();
         req.flash('success', 'You have been successfully logged out');
 
@@ -27,16 +27,16 @@ module.exports = class SessionController extends Controller {
           failureRedirect: '/login',
           failureFlash: 'Invalid email and/or password'
         }),
-        (req, res, log, user) => {
+        (req, res, user) => {
           req.flash('success', 'Welcome');
-          log.info(`User ${user.email} logged in successfully`);
+          this.log.info(`User ${user.email} logged in successfully`);
           res.redirect(req.query.redirect || '/');
         }
       ],
-      '/logout': (req, res, user, log) => {
+      '/logout': (req, res, user) => {
         req.logout();
         req.flash('success', 'You have been successfully logged out');
-        log.info(`User ${user.email} logged out successfully`);
+        this.log.info(`User ${user.email} logged out successfully`);
 
         res.redirect('/');
       }
