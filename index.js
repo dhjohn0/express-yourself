@@ -18,6 +18,7 @@ module.exports = (dirpath, options) => {
 
   //Setup express
   let app = require('./lib/express')(options);
+  app.log = log;
 
   //Setup passport
   let passport = require('./lib/passport')(app, db);
