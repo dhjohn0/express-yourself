@@ -20,10 +20,14 @@ module.exports = class Controller {
 
         route = route.map((fx) => {
           return (req, res, next) => {
-            this.router.di.invoke(fx, this, {
-              req,
-              res,
-              next
+            return Promise.resolve().then(() => {
+              return this.router.di.invoke(fx, this, {
+                req, res, next
+              });
+            }).catch(err => {
+              this.log.error(err);
+              res.status(500);
+              res.send(err.toString());
             });
           }
         });
