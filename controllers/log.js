@@ -11,6 +11,7 @@ module.exports = class UserController extends RestfulController {
     if (user && user.roles && user.roles.admin)
       return next();
 
+    res.status(401);
     return res.render('error', {
       header: '401: Unauthorized'
     });
