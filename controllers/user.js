@@ -7,6 +7,8 @@ let RestfulController = require('./_restful-controller');
 module.exports = class UserController extends RestfulController {
   get prefix() { return '/user'; }
 
+  get confirmEmail() { return false; }
+
   async list(req, res, db) {
     let start = parseInt(req.query.start) || 0;
     let length = parseInt(req.query.length) || 10;
@@ -42,11 +44,34 @@ module.exports = class UserController extends RestfulController {
     });
   }
 
+  async show(req, res, db) {
+    console.log(req.path);
+
+    let user = await db.get(req.params.id);
+
+    //Not quite Restful, but it needed to go in a GET method
+    if (req.query.token) {
+      if (req.query.token === user.confirmationToken) {
+        delete user.confirmationToken;
+        user.confirmed = true;
+
+        await db.put(user);
+        req.flash('info', 'Email Confirmed');
+
+        return res.redirect('/');
+      }
+    }
+
+    return res.render('user/show', { 
+      thisUser: user
+    });
+  }
+
   add(req, res) {
     res.render('user/add');
   }
 
-  async create(req, res, db, _) {
+  async create(req, res, db, mailer, config, _) {
     let user = _.merge(req.body, {
       enabled: true,
       type: 'user'
@@ -62,6 +87,22 @@ module.exports = class UserController extends RestfulController {
     }else{
       user.password = bcrypt.hashSync(user.password);
       user._id = uuid();
+
+      if (this.confirmEmail) {
+        let url = req.get('host');
+        if (url) {
+          url = `${req.protocol}://${url}`;
+        }else{
+          url = config.hostname;
+        }
+        user.confirmationToken = uuid();
+        let response = await mailer.sendTemplate(user.email, 'confirm-email', {
+          user,
+          confirmationLink: `${url}/user/${user._id}?token=${user.confirmationToken}`
+        });
+      }else{
+        user.confirmed = true;
+      }
 
       await db.put(user);
       
