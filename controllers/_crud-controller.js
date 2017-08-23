@@ -1,7 +1,3 @@
-let bcrypt = require('bcrypt-nodejs');
-let uuid = require('uuid/v1');
-let Promise = require('bluebird');
-
 let RestfulController = require('./_restful-controller');
 
 module.exports = class CrudController extends RestfulController {
@@ -72,8 +68,11 @@ module.exports = class CrudController extends RestfulController {
   }
 
   async update(req, res, db, _) {
+    let dbItem = await db.get(req.params.id);
+
     let item = _.merge(req.body, {
-      _id: uuid(),
+      _id: dbItem._id,
+      _rev: dbItem._rev,
       type: this.type
     });
     await db.put(item);
@@ -85,6 +84,23 @@ module.exports = class CrudController extends RestfulController {
       });
     }else{
       req.flash('success', `${this.userFriendlyName} updated`);
+      res.redirect(`${this.prefix}/list`);
+    }
+  }
+
+  async destroy(req, res, db) {
+    let item = await db.get(req.params.id);
+    item._deleted = true;
+
+    await db.put(item);
+
+    if (!req.accepts('text/html')) {
+      res.json({
+        success: true,
+        message: `${this.userFriendlyName} deleted`
+      });
+    }else{
+      req.flash('success', `${this.userFriendlyName} deleted`);
       res.redirect(`${this.prefix}/list`);
     }
   }
