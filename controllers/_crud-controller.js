@@ -11,8 +11,6 @@ module.exports = class CrudController extends RestfulController {
 
   async list(req, res, db) {
     if (!req.accepts('text/html')) {
-      console.log(req.query);
-
       let start = parseInt(req.query.start) || 0;
       let length = parseInt(req.query.length) || 10;
       let sort = {
@@ -58,8 +56,15 @@ module.exports = class CrudController extends RestfulController {
     });
     await db.put(item);
     
-    req.flash('success', `${this.userFriendlyName} created`);
-    res.redirect(`${this.prefix}/list`);
+    if (!req.accepts('text/html')) {
+      res.json({
+        success: true,
+        message: `${this.userFriendlyName} created`
+      });
+    }else{
+      req.flash('success', `${this.userFriendlyName} created`);
+      res.redirect(`${this.prefix}/list`);
+    }
   }
 
   edit(req, res) {
@@ -73,8 +78,15 @@ module.exports = class CrudController extends RestfulController {
     });
     await db.put(item);
     
-    req.flash('success', `${this.userFriendlyName} updated`);
-    res.redirect(`${this.prefix}/list`);
+    if (!req.accepts('text/html')) {
+      res.json({
+        success: true,
+        message: `${this.userFriendlyName} updated`
+      });
+    }else{
+      req.flash('success', `${this.userFriendlyName} updated`);
+      res.redirect(`${this.prefix}/list`);
+    }
   }
 
   actionChange(obj, action) {
@@ -98,12 +110,26 @@ module.exports = class CrudController extends RestfulController {
         return row.doc;
       });
       
-      req.flash('success', resultMessage);
       await db.bulkDocs(docs);
+      if (req.accepts('text/html')) {
+        res.json({
+          success: true,
+          message: resultMessage
+        });
+      }else{
+        req.flash('success', resultMessage);
+        res.redirect(`${this.prefix}/list`);
+      }
     }else{
-      req.flash('error', `No ${this.type}s selected`);
+      if (req.accepts('text/html')) {
+        res.json({
+          success: false,
+          message: `No ${this.type}s selected`
+        });
+      }else{
+        req.flash('error', `No ${this.type}s selected`);
+        res.redirect(`${this.prefix}/list`);
+      }
     }
-      
-    res.redirect(`${this.prefix}/list`);
   }
 };
