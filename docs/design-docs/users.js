@@ -1,5 +1,5 @@
 module.exports = {
-  _id: '_design/users',
+  _id: '_design/user',
   language: 'javascript',
 
   views: {

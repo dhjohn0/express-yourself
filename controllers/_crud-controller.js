@@ -1,0 +1,109 @@
+let bcrypt = require('bcrypt-nodejs');
+let uuid = require('uuid/v1');
+let Promise = require('bluebird');
+
+let RestfulController = require('./_restful-controller');
+
+module.exports = class CrudController extends RestfulController {
+  get type() { return undefined; }
+
+  get userFriendlyName() { return undefined; }
+
+  async list(req, res, db) {
+    if (!req.accepts('text/html')) {
+      console.log(req.query);
+
+      let start = parseInt(req.query.start) || 0;
+      let length = parseInt(req.query.length) || 10;
+      let sort = {
+        column: req.query.sort,
+        desc: req.query.desc === 'true' || false
+      };
+
+      let p = await db.paginate(`${this.type}/forList`, start, length, {
+        start_key: [sort.column, !sort.desc ? null : {}],
+        end_key: [sort.column, !sort.desc ? {} : null],
+        descending: sort.desc
+      });
+
+      return res.json({
+        list: p.list.map(user => {
+          delete user.password;
+          return user;
+        }),
+        pagination: p.pagination,
+        sort: sort
+      });
+    }
+    return res.render(`${this.type}/list`);
+  }
+
+  async show(req, res, db) {
+    if (!req.accepts('text/html')) {
+      let item = await db.get(req.params.id);
+
+      return res.json(item);
+    }
+    return res.render(`${this.type}/show`);
+  }
+
+  add(req, res) {
+    res.render(`${this.type}/edit`);
+  }
+
+  async create(req, res, db, _) {
+    let item = _.merge(req.body, {
+      _id: uuid(),
+      type: this.type
+    });
+    await db.put(item);
+    
+    req.flash('success', `${this.userFriendlyName} created`);
+    res.redirect(`${this.prefix}/list`);
+  }
+
+  edit(req, res) {
+    res.render(`${this.type}/edit`);
+  }
+
+  async update(req, res, db, _) {
+    let item = _.merge(req.body, {
+      _id: uuid(),
+      type: this.type
+    });
+    await db.put(item);
+    
+    req.flash('success', `${this.userFriendlyName} updated`);
+    res.redirect(`${this.prefix}/list`);
+  }
+
+  actionChange(obj, action) {
+    return 'No op';
+  }
+
+  async action(req, res, db, _) {
+    let ids = Array.isArray(req.body._id) || !req.body._id ? req.body._id : [ req.body._id ];
+    
+    if (ids && ids.length) {
+      let result = await db.allDocs({
+        keys: ids, 
+        include_docs: true
+      });
+
+      let change = {};
+      let resultMessage = this.actionChange(change, req.body.action);
+
+      let docs = result.rows.map(row => {
+        row.doc = _.extend(row.doc, change);
+        return row.doc;
+      });
+      
+      req.flash('success', resultMessage);
+      await db.bulkDocs(docs);
+    }else{
+      req.flash('error', `No ${this.type}s selected`);
+    }
+      
+    res.redirect(`${this.prefix}/list`);
+  }
+};
