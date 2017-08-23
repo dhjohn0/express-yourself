@@ -37,6 +37,15 @@
     },
     get: function (prefix, id) {
       return ajax('GET', prefix + '/' + id);
+    },
+    create: function (prefix, item) {
+      return ajax('POST', prefix + '/', item);
+    },
+    update: function (prefix, item) {
+      return ajax('PUT', prefix + '/' + item._id, item);
+    },
+    destroy: function (prefix, item) {
+      return ajax('DELETE', prefix + '/' + item._id);
     }
   };
 })(window);
