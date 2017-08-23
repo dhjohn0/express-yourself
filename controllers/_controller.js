@@ -16,6 +16,20 @@ module.exports = class Controller {
         if (!Array.isArray(route))
           route = [ route ];
 
+        route.unshift((req, res, next) => {
+          res.locals.flash = {
+            success: req.flash('success'),
+            info: req.flash('info'),
+            warn: req.flash('warn'),
+            error: req.flash('error')
+          };
+
+          res.locals.user = req.user;
+
+          res.locals.query = req.query;
+          res.locals.params = req.params;
+          next();
+        });
         route.unshift(this.authorize);
 
         route = route.map((fx) => {

@@ -42,19 +42,6 @@ module.exports = (dirpath, config) => {
   let mailer = require('./lib/mailer')(config, db, handlebars, log);
   di.value('mailer', mailer);
 
-  //Build global locals
-  app.use(function (req, res, next) {
-    res.locals.flash = {
-      success: req.flash('success'),
-      info: req.flash('info'),
-      warn: req.flash('warn'),
-      error: req.flash('error')
-    };
-
-    res.locals.user = req.user;
-    next();
-  });
-
   //Setup controllers
   require('./lib/controllers')(app, log, config);
 
