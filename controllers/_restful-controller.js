@@ -62,7 +62,7 @@ module.exports = class RestfulController extends Controller {
 
   get delete() {
     return {
-      '/:id': !this.update ? [] : [ validationMiddleware(this.validation), this.delete ]
+      '/:id': !this.destroy ? [] : [ validationMiddleware(this.validation), this.destroy ]
     };
   }
 }
