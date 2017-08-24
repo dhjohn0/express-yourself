@@ -1,3 +1,5 @@
+let uuid = require('uuid/v1');
+
 let RestfulController = require('./_restful-controller');
 
 module.exports = class CrudController extends RestfulController {

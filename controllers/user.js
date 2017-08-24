@@ -29,7 +29,19 @@ module.exports = class UserController extends CrudController {
     return super.show(req, res, db);
   }
 
+  async show(req, res, db) {
+    if (!req.accepts('text/html')) {
+      let item = await db.get(req.params.id);
+      delete item.password;
+      
+      return res.json(item);
+    }
+    return super.show(req, res, db);
+  }
+
   async create(req, res, db, mailer, config, _) {
+    let user = req.body;
+
     let users = await db.query('user/byEmail', { 
       key: user.email,
       include_docs: true 
@@ -40,6 +52,7 @@ module.exports = class UserController extends CrudController {
       return res.redirect('/user/list');
     }else{
       user.password = bcrypt.hashSync(user.password);
+      user.enabled = true;
 
       if (this.confirmEmail) {
         let url = req.get('host');
