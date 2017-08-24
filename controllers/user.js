@@ -75,16 +75,16 @@ module.exports = class UserController extends CrudController {
   }
 
   actionChange(change, action) {
-    switch (req.body.action) {
-        case "Delete":
-          change._deleted = true;
-          return 'Users deleted';
-        case "Enable":
-          change.enabled = true;
-          return 'Users enabled';
-        case "Disable":
-          change.enabled = false;
-          return 'Users disabled';
-      }
+    switch (action) {
+      case "Delete":
+        change._deleted = true;
+        return 'Users deleted';
+      case "Enable":
+        change.enabled = true;
+        return 'Users enabled';
+      case "Disable":
+        change.enabled = false;
+        return 'Users disabled';
+    }
   }
 };
