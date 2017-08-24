@@ -1,5 +1,5 @@
 module.exports = {
-  _id: '_design/emailTemplates',
+  _id: '_design/email-template',
   language: 'javascript',
 
   views: {
