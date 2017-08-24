@@ -20,10 +20,17 @@ let validationMiddleware = (validation) => {
       let obj = req.body;
       let result = cy.check(obj);
       if (result.failed) {
-        res.render('error', {
-          header: 'Validation Failed',
-          errors: result.errors
-        });
+        if (!req.accepts('text/html')) {
+          res.json({
+            success: false,
+            errors: result.errors
+          });
+        }else{
+          res.render('error', {
+            header: 'Validation Failed',
+            errors: result.errors
+          });
+        }
       }else{
         next();
       }
