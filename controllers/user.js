@@ -45,7 +45,7 @@ module.exports = class UserController extends CrudController {
     let users = await db.query('user/byEmail', { 
       key: user.email,
       include_docs: true 
-    })
+    });
 
     if (users.rows.length) {
       req.flash('error', 'Given email is already in use by another account');
@@ -69,7 +69,7 @@ module.exports = class UserController extends CrudController {
       }else{
         user.confirmed = true;
       }
-
+      
       return await super.create(req, res, db, _);
     }
   }
