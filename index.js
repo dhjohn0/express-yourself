@@ -26,6 +26,9 @@ module.exports = (appDirectory, config) => {
   di.value('db', db);
   di.invoke(require('./lib/helpers/paginate'));
 
+  let search = di.invoke(require('./lib/elastic'));
+  di.value('search', search);
+
   //Setup express
   let app = di.invoke(require('./lib/express'));
   di.value('app', app);
