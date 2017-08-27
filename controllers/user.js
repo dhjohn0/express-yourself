@@ -29,16 +29,6 @@ module.exports = class UserController extends CrudController {
     return super.show(req, res, db);
   }
 
-  async show(req, res, db) {
-    if (!req.accepts('text/html')) {
-      let item = await db.get(req.params.id);
-      delete item.password;
-      
-      return res.json(item);
-    }
-    return super.show(req, res, db);
-  }
-
   async create(req, res, db, mailer, config, _) {
     let user = req.body;
 
@@ -72,6 +62,17 @@ module.exports = class UserController extends CrudController {
       
       return await super.create(req, res, db, _);
     }
+  }
+
+  async update(req, res, db, _) {
+    let user = req.body;
+
+    if (!user.password) {
+      let dbUser = await db.get(user._id);
+      user.password = dbUser.password;
+    }
+
+    super.update(req, res, db, _);
   }
 
   actionChange(change, action) {
