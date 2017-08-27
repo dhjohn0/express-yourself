@@ -71,7 +71,7 @@ options = {
                       {{#if .isId}}
                         <input type="checkbox" class="select-all" title="Select All" />
                       {{elseif .sortable || .sortable === undefined}}
-                        <a href="{{{options.url}}}{{#if options.url && options.url.indexOf('?') >= 0}}&{{else}}?{{/if}}sort={{{c}}}{{#if options.sort.column === c && !options.sort.desc}}&desc=true{{/if}}">
+                        <a href="{{{options.url}}}{{#if options.url && options.url.indexOf('?') >= 0}}&{{else}}?{{/if}}sort={{{c}}}{{#if options.sort.column === c && !options.sort.desc}}&desc=true{{/if}}{{#if term}}&term={{{term}}}{{/if}}">
                           {{#if .title}}{{{.title}}}{{else}}{{{c}}}{{/if}}
                           {{#if options.sort.column === c}}
                             <span class="glyphicon glyphicon-triangle-{{#if options.sort.desc}}bottom{{else}}top{{/if}}"></span>
@@ -118,7 +118,7 @@ options = {
       <div class="row">
         <div class="col-xs-4">
           {{#if pagination.previous || pagination.previous === 0}}
-            <a href="{{{options.url}}}{{#if options.url && options.url.indexOf('?') >= 0}}&{{else}}?{{/if}}start={{pagination.previous}}&length={{pagination.length}}&sort={{{options.sort.column}}}{{#if options.sort.desc}}&desc=true{{/if}}">Prev</a>
+            <a href="{{{options.url}}}{{#if options.url && options.url.indexOf('?') >= 0}}&{{else}}?{{/if}}start={{pagination.previous}}&length={{pagination.length}}&sort={{{options.sort.column}}}{{#if options.sort.desc}}&desc=true{{/if}}&term={{{term}}}">Prev</a>
           {{/if}}
         </div>
         <div class="col-xs-4 text-center">
@@ -128,7 +128,7 @@ options = {
         </div>
         <div class="col-xs-4 text-right">
           {{#if pagination.next || pagination.next === 0}}
-            <a href="{{{options.url}}}{{#if options.url && options.url.indexOf('?') >= 0}}&{{else}}?{{/if}}start={{pagination.next}}&length={{pagination.length}}&sort={{{options.sort.column}}}{{#if options.sort.desc}}&desc=true{{/if}}">Next</a>
+            <a href="{{{options.url}}}{{#if options.url && options.url.indexOf('?') >= 0}}&{{else}}?{{/if}}start={{pagination.next}}&length={{pagination.length}}&sort={{{options.sort.column}}}{{#if options.sort.desc}}&desc=true{{/if}}&term={{{term}}}">Next</a>
           {{/if}}
         </div>
       </div>
