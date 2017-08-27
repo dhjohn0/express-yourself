@@ -1,13 +1,10 @@
-Express Yourself
-================
+#Express Yourself
 An Express based web framework with a CouchDB backend and Handlebars view templating
 
-Installation
-------------
+##Installation
 ```npm install express-yourself```
 
-Features
---------
+##Features
 ###Controllers
 ###Document Loading
 ###Passport Authorization
