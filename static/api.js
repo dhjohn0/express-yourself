@@ -32,8 +32,16 @@
   }
 
   window.api = {
-    list: function (prefix, start, length, sort, descending) {
-      return ajax('GET', prefix + '/list?start=' + start + '&length=' + length + '&sort=' + sort + '&desc=' + (descending ? 'true' : 'false'));
+    list: function (prefix, start, length, sort, descending, searchTerm) {
+      var q = '/list';
+      q += '?start=' + start;
+      q += '&length=' + length;
+      q += '&sort=' + sort;
+      q += '&desc=' + ((descending === true || descending === 'true') ? 'true' : 'false');
+      if (searchTerm)
+        q += '&term=' + searchTerm;
+
+      return ajax('GET', prefix + q);
     },
     get: function (prefix, id) {
       return ajax('GET', prefix + '/' + id);

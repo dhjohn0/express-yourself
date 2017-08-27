@@ -2,6 +2,7 @@
 
 options = {
   url: '/',
+  searchable: true,
   actions: {
     Add: { href: '/add', showOnEmpty: true },
     Delete: { classes: 'btn-danger' }
@@ -37,18 +38,23 @@ options = {
 <form action="{{options.actionUrl}}" method="POST">
   <div class="row">
     <div class="col-xs-12">
-      <div class="form-group">
+      <div class="form-group form-inline">
         {{#each options.actions:a}}
           {{#if list.length || .showOnEmpty}}
             {{#if .html}}
               {{{.html}}}
+            {{elseif .spacer}}
+              <span class="grid-spacer"></span>
             {{elseif .href}}
-              <a href="{{{.href}}}" class="action btn btn-default btn-sm btn-xxs-block {{{.classes}}}">{{a}}</a>
+              <a href="{{{.href}}}" class="action btn btn-default btn-sm grid-xxs-block {{{.classes}}}">{{a}}</a>
             {{else}}
-              <input type="submit" name="action" class="action btn btn-default btn-sm btn-xxs-block {{{.classes}}}" value="{{a}}" twoway="false" />
+              <input type="submit" name="action" class="action btn btn-default btn-sm grid-xxs-block {{{.classes}}}" value="{{a}}" twoway="false" />
             {{/if}}
           {{/if}}
         {{/each}}
+        {{#if options.searchable}}
+          <input type="text" class="form-control input-sm pull-right grid-xxs-block" on-enter="search" value="{{term}}" placeholder="Search" />
+        {{/if}}
       </div>
     </div>
   </div>

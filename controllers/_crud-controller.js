@@ -7,7 +7,7 @@ module.exports = class CrudController extends RestfulController {
 
   get userFriendlyName() { return undefined; }
 
-  async list(req, res, db) {
+  async list(req, res, db, search, config) {
     if (!req.accepts('text/html')) {
       let start = parseInt(req.query.start) || 0;
       let length = parseInt(req.query.length) || 10;
@@ -16,11 +16,44 @@ module.exports = class CrudController extends RestfulController {
         desc: req.query.desc === 'true' || false
       };
 
-      let p = await db.paginate(`${this.type}/forList`, start, length, {
-        start_key: [sort.column, !sort.desc ? null : {}],
-        end_key: [sort.column, !sort.desc ? {} : null],
-        descending: sort.desc
-      });
+      let p;
+      if (req.query.term && search) {
+        let results = await search.search({
+          index: config.search.index,
+          type: this.type,
+          q: `_all:${req.query.term}`,
+          from: start,
+          size: length,
+          sort: `${sort.column}:${sort.desc ? 'asc' : 'desc'}`
+        });
+
+        p = {
+          list: results.hits.hits.map(v => {
+            v._source._id = v._id;
+            return v._source;
+          }),
+          pagination: {
+            previous: start - length,
+            start: start + 1,
+            end: start + results.hits.hits.length,
+            length: length,
+            next: (results.hits.total > start + length) ? start + length : null
+          }
+        };
+        if (p.pagination.previous < 0) {
+          if (start <= 0)
+            p.pagination.previous = null;
+          else
+            p.pagination.previous = 0;
+        }
+      }else{
+        p = await db.paginate(`${this.type}/forList`, start, length, {
+          start_key: [sort.column, !sort.desc ? null : {}],
+          end_key: [sort.column, !sort.desc ? {} : null],
+          descending: sort.desc
+        });
+      }
+
 
       return res.json({
         list: p.list.map(user => {
