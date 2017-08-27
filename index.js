@@ -3,7 +3,7 @@ let fs = require('fs');
 let _ = require('lodash');
 let PouchDB = require('pouchdb');
 
-module.exports = (appDirectory, config) => {
+module.exports = async (appDirectory, config) => {
   //Setup injection
   let di = require('./lib/di')();
   di.value('appDirectory', appDirectory);
@@ -26,7 +26,8 @@ module.exports = (appDirectory, config) => {
   di.value('db', db);
   di.invoke(require('./lib/helpers/paginate'));
 
-  let search = di.invoke(require('./lib/elastic'));
+  //Setup elasticsearch
+  let search = await di.invoke(require('./lib/elastic'));
   di.value('search', search);
 
   //Setup express
@@ -52,10 +53,8 @@ module.exports = (appDirectory, config) => {
   //Setup controllers
   di.invoke(require('./lib/controllers'));
 
-  //mailer.send('dhjohn0@gmail.com', 'Test', '<strong>HELLO!</strong>');
-
   //Setup docs
-  return di.invoke(require('./lib/docs')).then(() => {
-    return app;
-  });
+  await di.invoke(require('./lib/docs'));
+  
+  return app;
 }
