@@ -24,11 +24,13 @@ module.exports = async (appDirectory, config) => {
   //Setup db connection
   let db = new PouchDB(config.db);
   di.value('db', db);
-  di.invoke(require('./lib/helpers/paginate'));
 
   //Setup elasticsearch
   let search = await di.invoke(require('./lib/elastic'));
   di.value('search', search);
+
+  //Setup paginate helpers
+  di.invoke(require('./lib/helpers/paginate'));
 
   //Setup express
   let app = di.invoke(require('./lib/express'));
