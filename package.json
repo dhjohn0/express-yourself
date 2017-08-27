@@ -1,7 +1,7 @@
 {
   "name": "express-yourself",
-  "version": "0.0.4",
-  "description": "",
+  "version": "0.0.5",
+  "description": "An Express based web framework with a CouchDB backend and Handlebars view templating",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
