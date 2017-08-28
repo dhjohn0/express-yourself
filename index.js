@@ -57,6 +57,9 @@ module.exports = async (appDirectory, config) => {
 
   //Setup docs
   await di.invoke(require('./lib/docs'));
+
+  //Setup crons
+  di.invoke(require('./lib/crons'));
   
   return app;
 }

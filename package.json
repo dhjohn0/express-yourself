@@ -24,6 +24,7 @@
     "handlebars-layouts": "^3.1.4",
     "lodash": "^4.17.4",
     "method-override": "^2.3.9",
+    "node-cron": "^1.2.1",
     "nodemailer": "^4.0.1",
     "passport": "^0.3.2",
     "passport-local": "^1.0.0",
