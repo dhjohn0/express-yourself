@@ -1,5 +1,14 @@
 let _ = require('lodash');
 
+let fnName = (fn) => {
+  let regex = /^(function[\s]+)?(.*?)[\s]*({|=>)/;
+  let matches = regex.exec(fn.toString());
+
+  if (!matches)
+    return '';
+  return matches[2];
+}
+
 module.exports = class Controller {
   constructor(router, log) {
     this.router = router;
@@ -16,24 +25,12 @@ module.exports = class Controller {
         if (!Array.isArray(route))
           route = [ route ];
 
-        route.unshift((req, res, next) => {
-          res.locals.flash = {
-            success: req.flash('success'),
-            info: req.flash('info'),
-            warn: req.flash('warn'),
-            error: req.flash('error')
-          };
-
-          res.locals.user = req.user;
-
-          res.locals.query = req.query;
-          res.locals.params = req.params;
-          next();
-        });
+        route.unshift(this.addLocals);
         route.unshift(this.authorize);
 
-        route = route.map((fx) => {
+        route = route.map((fx, index) => {
           return (req, res, next) => {
+            this.log.debug(`Calling '${fnName(fx)}' for route '${req.method}:${req.path}'`);
             return Promise.resolve().then(() => {
               return this.router.di.invoke(fx, this, {
                 req, res, next
@@ -56,6 +53,22 @@ module.exports = class Controller {
   }
 
   get prefix() { return '' }
+
+  addLocals(req, res, next) {
+    res.locals.flash = {
+      success: req.flash('success'),
+      info: req.flash('info'),
+      warn: req.flash('warn'),
+      error: req.flash('error')
+    };
+
+    res.locals.user = req.user;
+
+    res.locals.query = req.query;
+    res.locals.params = req.params;
+    
+    return next();
+  }
 
   authorize(req, res, next, user) {
     return next();
