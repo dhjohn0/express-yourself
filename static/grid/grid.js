@@ -54,6 +54,24 @@ function setupGrid(prefix, defaults) {
             desc: desc,
             term: term
           });
+        },
+        action: function (e, name) {
+          e.event.preventDefault();
+          
+          var checks = _.map(_.filter(_.toPairs(this.get('p.checks')), function (pair) {
+            return pair[1];
+          }), function (pair) {
+            return pair[0];
+          });
+
+          if (checks.length)
+            api.action(prefix, name, checks).then(function (result) {
+              load();
+              flash('success', result.message);
+            });
+          else{
+            flash('error', 'No items selected');
+          }
         }
       }
     });
@@ -77,6 +95,7 @@ function setupGrid(prefix, defaults) {
       }, defaults, hash);
 
       api.list(prefix, hash.start, hash.length, hash.sort, hash.desc, hash.term).then(function (p) {
+        p.checks = {};
         ractive.set('p', p);
       });
     }

@@ -35,107 +35,105 @@ options = {
 }
 
 -->
-<form action="{{options.actionUrl}}" method="POST">
+<div class="row">
+  <div class="col-xs-12">
+    <div class="form-group form-inline clearfix">
+      {{#each options.actions:a}}
+        {{#if p.list.length || .showOnEmpty}}
+          {{#if .html}}
+            {{{.html}}}
+          {{elseif .spacer}}
+            <span class="grid-spacer"></span>
+          {{elseif .href}}
+            <a href="{{{.href}}}" class="action btn btn-default btn-sm grid-xxs-block {{{.classes}}}">{{a}}</a>
+          {{else}}
+            <input type="submit" name="action" class="action btn btn-default btn-sm grid-xxs-block {{{.classes}}}" value="{{a}}" twoway="false" on-click="['action', a]" />
+          {{/if}}
+        {{/if}}
+      {{/each}}
+      {{#if options.searchable}}
+        <input type="text" class="form-control input-sm pull-right grid-xxs-block" on-enter="search" value="{{p.term}}" placeholder="Search" />
+      {{/if}}
+    </div>
+  </div>
+</div>
+{{#if p.list.length}}
   <div class="row">
     <div class="col-xs-12">
-      <div class="form-group form-inline">
-        {{#each options.actions:a}}
-          {{#if p.list.length || .showOnEmpty}}
-            {{#if .html}}
-              {{{.html}}}
-            {{elseif .spacer}}
-              <span class="grid-spacer"></span>
-            {{elseif .href}}
-              <a href="{{{.href}}}" class="action btn btn-default btn-sm grid-xxs-block {{{.classes}}}">{{a}}</a>
-            {{else}}
-              <input type="submit" name="action" class="action btn btn-default btn-sm grid-xxs-block {{{.classes}}}" value="{{a}}" twoway="false" />
-            {{/if}}
-          {{/if}}
-        {{/each}}
-        {{#if options.searchable}}
-          <input type="text" class="form-control input-sm pull-right grid-xxs-block" on-enter="search" value="{{p.term}}" placeholder="Search" />
-        {{/if}}
+      <div class="table-responsive">
+        <table class="table table-striped table-bordered">
+          {{#unless options.hideHeader}}
+            <thead>
+              <tr>
+                {{#each options.columns:c}}
+                  <th classes="{{{.classes}}}">
+                    {{#if .isId}}
+                      <input type="checkbox" class="select-all" title="Select All" />
+                    {{elseif .sortable || .sortable === undefined}}
+                      <a href="#sort={{{c}}}{{#if p.sort.column === c && !p.sort.desc}}&desc=true{{/if}}{{#if p.term}}&term={{{p.term}}}{{/if}}">
+                        {{#if .title}}{{{.title}}}{{else}}{{{c}}}{{/if}}
+                        {{#if p.sort.column === c}}
+                          <span class="glyphicon glyphicon-triangle-{{#if p.sort.desc}}bottom{{else}}top{{/if}}"></span>
+                        {{/if}}
+                      </a>
+                    {{else}}
+                      {{#if .title}}{{{.title}}}{{else}}{{{c}}}{{/if}}
+                    {{/if}}
+                  </th>
+                {{/each}}
+              </tr>
+            </thead>
+          {{/unless}}
+          <tbody>
+            {{#each p.list:i}}
+              <tr class="{{#if typeof(options.rowClasses) === 'string'}}
+                {{runTemplate(., options.rowClasses)}}
+              {{elseif options.rowClasses}}
+                {{{options.rowClasses(., i)}}}
+              {{/if}}">
+                {{#each options.columns:c}}
+                  <td class="{{{.classes}}}">
+                    {{#if .isId}}
+                      <input type="checkbox" class="id-checkbox" name="{{c}}" value="{{p.list[i][c]}}" checked="{{p.checks[ p.list[i][c] ]}}" />
+                    {{elseif .formatter && .template}}
+                      {{{ runTemplate(.formatter(p.list[i][c], c, p.list[i]), .template) }}}
+                    {{elseif .formatter}}
+                      {{{ .formatter(p.list[i][c], c, p.list[i]) }}}
+                    {{elseif .template}}
+                      {{{ runTemplate(p.list[i], .template) }}}
+                    {{else}}
+                      {{p.list[i][c]}}
+                    {{/if}}
+                  </td>
+                {{/each}}
+              </tr>
+            {{/each}}
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
-  {{#if p.list.length}}
+  {{#if p.pagination}}
     <div class="row">
-      <div class="col-xs-12">
-        <div class="table-responsive">
-          <table class="table table-striped table-bordered">
-            {{#unless options.hideHeader}}
-              <thead>
-                <tr>
-                  {{#each options.columns:c}}
-                    <th classes="{{{.classes}}}">
-                      {{#if .isId}}
-                        <input type="checkbox" class="select-all" title="Select All" />
-                      {{elseif .sortable || .sortable === undefined}}
-                        <a href="#sort={{{c}}}{{#if p.sort.column === c && !p.sort.desc}}&desc=true{{/if}}{{#if p.term}}&term={{{p.term}}}{{/if}}">
-                          {{#if .title}}{{{.title}}}{{else}}{{{c}}}{{/if}}
-                          {{#if p.sort.column === c}}
-                            <span class="glyphicon glyphicon-triangle-{{#if p.sort.desc}}bottom{{else}}top{{/if}}"></span>
-                          {{/if}}
-                        </a>
-                      {{else}}
-                        {{#if .title}}{{{.title}}}{{else}}{{{c}}}{{/if}}
-                      {{/if}}
-                    </th>
-                  {{/each}}
-                </tr>
-              </thead>
-            {{/unless}}
-            <tbody>
-              {{#each p.list:i}}
-                <tr class="{{#if typeof(options.rowClasses) === 'string'}}
-                  {{runTemplate(., options.rowClasses)}}
-                {{elseif options.rowClasses}}
-                  {{{options.rowClasses(., i)}}}
-                {{/if}}">
-                  {{#each options.columns:c}}
-                    <td class="{{{.classes}}}">
-                      {{#if .isId}}
-                        <input type="checkbox" class="id-checkbox" name="{{c}}" value="{{p.list[i][c]}}" checked="{{false}}" />
-                      {{elseif .formatter && .template}}
-                        {{{ runTemplate(.formatter(p.list[i][c], c, p.list[i]), .template) }}}
-                      {{elseif .formatter}}
-                        {{{ .formatter(p.list[i][c], c, p.list[i]) }}}
-                      {{elseif .template}}
-                        {{{ runTemplate(p.list[i], .template) }}}
-                      {{else}}
-                        {{p.list[i][c]}}
-                      {{/if}}
-                    </td>
-                  {{/each}}
-                </tr>
-              {{/each}}
-            </tbody>
-          </table>
-        </div>
+      <div class="col-xs-4">
+        {{#if p.pagination.previous || p.pagination.previous === 0}}
+          <a href="#start={{p.pagination.previous}}&length={{p.pagination.length}}&sort={{{p.sort.column}}}{{#if p.sort.desc}}&desc=true{{/if}}&term={{{p.term}}}">Prev</a>
+        {{/if}}
+      </div>
+      <div class="col-xs-4 text-center">
+        {{#if p.pagination.start}}
+          Displaying {{p.pagination.start}}{{#if p.pagination.end}} to {{p.pagination.end}}{{/if}}
+        {{/if}}
+      </div>
+      <div class="col-xs-4 text-right">
+        {{#if p.pagination.next || p.pagination.next === 0}}
+          <a href="#start={{p.pagination.next}}&length={{p.pagination.length}}&sort={{{p.sort.column}}}{{#if p.sort.desc}}&desc=true{{/if}}&term={{{p.term}}}">Next</a>
+        {{/if}}
       </div>
     </div>
-    {{#if p.pagination}}
-      <div class="row">
-        <div class="col-xs-4">
-          {{#if p.pagination.previous || p.pagination.previous === 0}}
-            <a href="#start={{p.pagination.previous}}&length={{p.pagination.length}}&sort={{{p.sort.column}}}{{#if p.sort.desc}}&desc=true{{/if}}&term={{{p.term}}}">Prev</a>
-          {{/if}}
-        </div>
-        <div class="col-xs-4 text-center">
-          {{#if p.pagination.start}}
-            Displaying {{p.pagination.start}}{{#if p.pagination.end}} to {{p.pagination.end}}{{/if}}
-          {{/if}}
-        </div>
-        <div class="col-xs-4 text-right">
-          {{#if p.pagination.next || p.pagination.next === 0}}
-            <a href="#start={{p.pagination.next}}&length={{p.pagination.length}}&sort={{{p.sort.column}}}{{#if p.sort.desc}}&desc=true{{/if}}&term={{{p.term}}}">Next</a>
-          {{/if}}
-        </div>
-      </div>
-    {{/if}}
-  {{elseif options.noResultsMessage}}
-    {{options.noResultsMessage}}
-  {{else}}
-    <h3>No results found</h3>
   {{/if}}
-</form>
+{{elseif options.noResultsMessage}}
+  {{options.noResultsMessage}}
+{{else}}
+  <h3>No results found</h3>
+{{/if}}
