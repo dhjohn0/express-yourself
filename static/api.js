@@ -54,6 +54,23 @@
     },
     destroy: function (prefix, item) {
       return ajax('DELETE', prefix + '/' + item._id);
-    }
+    },
+    action: function (prefix, actionType, ids) {
+      var body = {
+        action: actionType,
+        _id: ids
+      };
+      return ajax('POST', prefix + '/action', body);
+    },
   };
+
+  window.flash = function (type, message) {
+    if (type === 'error')
+      type = 'danger';
+    $('#flash-container').append('<div class="alert alert-' + 
+      type + 
+      ' alert-dismissible" role="alert"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>' + 
+      message + 
+      '</div>');
+  }
 })(window);
