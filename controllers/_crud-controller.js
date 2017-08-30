@@ -135,7 +135,7 @@ module.exports = class CrudController extends RestfulController {
       });
       
       await db.bulkDocs(docs);
-      if (req.accepts('text/html')) {
+      if (!req.accepts('text/html')) {
         res.json({
           success: true,
           message: resultMessage
@@ -145,7 +145,7 @@ module.exports = class CrudController extends RestfulController {
         res.redirect(`${this.prefix}/list`);
       }
     }else{
-      if (req.accepts('text/html')) {
+      if (!req.accepts('text/html')) {
         res.json({
           success: false,
           message: `No ${this.type}s selected`
