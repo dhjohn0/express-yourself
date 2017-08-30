@@ -33,7 +33,8 @@ module.exports = class CrudController extends RestfulController {
           return user;
         }),
         pagination: p.pagination,
-        sort: sort
+        sort: sort,
+        term: req.query.term
       });
     }
     return res.render(`${this.type}/list`);

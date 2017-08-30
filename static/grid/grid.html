@@ -40,7 +40,7 @@ options = {
     <div class="col-xs-12">
       <div class="form-group form-inline">
         {{#each options.actions:a}}
-          {{#if list.length || .showOnEmpty}}
+          {{#if p.list.length || .showOnEmpty}}
             {{#if .html}}
               {{{.html}}}
             {{elseif .spacer}}
@@ -53,12 +53,12 @@ options = {
           {{/if}}
         {{/each}}
         {{#if options.searchable}}
-          <input type="text" class="form-control input-sm pull-right grid-xxs-block" on-enter="search" value="{{term}}" placeholder="Search" />
+          <input type="text" class="form-control input-sm pull-right grid-xxs-block" on-enter="search" value="{{p.term}}" placeholder="Search" />
         {{/if}}
       </div>
     </div>
   </div>
-  {{#if list.length}}
+  {{#if p.list.length}}
     <div class="row">
       <div class="col-xs-12">
         <div class="table-responsive">
@@ -71,10 +71,10 @@ options = {
                       {{#if .isId}}
                         <input type="checkbox" class="select-all" title="Select All" />
                       {{elseif .sortable || .sortable === undefined}}
-                        <a href="{{{options.url}}}{{#if options.url && options.url.indexOf('?') >= 0}}&{{else}}?{{/if}}sort={{{c}}}{{#if options.sort.column === c && !options.sort.desc}}&desc=true{{/if}}{{#if term}}&term={{{term}}}{{/if}}">
+                        <a href="#sort={{{c}}}{{#if p.sort.column === c && !p.sort.desc}}&desc=true{{/if}}{{#if p.term}}&term={{{p.term}}}{{/if}}">
                           {{#if .title}}{{{.title}}}{{else}}{{{c}}}{{/if}}
-                          {{#if options.sort.column === c}}
-                            <span class="glyphicon glyphicon-triangle-{{#if options.sort.desc}}bottom{{else}}top{{/if}}"></span>
+                          {{#if p.sort.column === c}}
+                            <span class="glyphicon glyphicon-triangle-{{#if p.sort.desc}}bottom{{else}}top{{/if}}"></span>
                           {{/if}}
                         </a>
                       {{else}}
@@ -86,7 +86,7 @@ options = {
               </thead>
             {{/unless}}
             <tbody>
-              {{#each list:i}}
+              {{#each p.list:i}}
                 <tr class="{{#if typeof(options.rowClasses) === 'string'}}
                   {{runTemplate(., options.rowClasses)}}
                 {{elseif options.rowClasses}}
@@ -95,15 +95,15 @@ options = {
                   {{#each options.columns:c}}
                     <td class="{{{.classes}}}">
                       {{#if .isId}}
-                        <input type="checkbox" class="id-checkbox" name="{{c}}" value="{{list[i][c]}}" checked="{{false}}" />
+                        <input type="checkbox" class="id-checkbox" name="{{c}}" value="{{p.list[i][c]}}" checked="{{false}}" />
                       {{elseif .formatter && .template}}
-                        {{{ runTemplate(.formatter(list[i][c], c, list[i]), .template) }}}
+                        {{{ runTemplate(.formatter(p.list[i][c], c, p.list[i]), .template) }}}
                       {{elseif .formatter}}
-                        {{{ .formatter(list[i][c], c, list[i]) }}}
+                        {{{ .formatter(p.list[i][c], c, p.list[i]) }}}
                       {{elseif .template}}
-                        {{{ runTemplate(list[i], .template) }}}
+                        {{{ runTemplate(p.list[i], .template) }}}
                       {{else}}
-                        {{list[i][c]}}
+                        {{p.list[i][c]}}
                       {{/if}}
                     </td>
                   {{/each}}
@@ -114,21 +114,21 @@ options = {
         </div>
       </div>
     </div>
-    {{#if pagination}}
+    {{#if p.pagination}}
       <div class="row">
         <div class="col-xs-4">
-          {{#if pagination.previous || pagination.previous === 0}}
-            <a href="{{{options.url}}}{{#if options.url && options.url.indexOf('?') >= 0}}&{{else}}?{{/if}}start={{pagination.previous}}&length={{pagination.length}}&sort={{{options.sort.column}}}{{#if options.sort.desc}}&desc=true{{/if}}&term={{{term}}}">Prev</a>
+          {{#if p.pagination.previous || p.pagination.previous === 0}}
+            <a href="#start={{p.pagination.previous}}&length={{p.pagination.length}}&sort={{{p.sort.column}}}{{#if p.sort.desc}}&desc=true{{/if}}&term={{{p.term}}}">Prev</a>
           {{/if}}
         </div>
         <div class="col-xs-4 text-center">
-          {{#if pagination.start}}
-            Displaying {{pagination.start}}{{#if pagination.end}} to {{pagination.end}}{{/if}}
+          {{#if p.pagination.start}}
+            Displaying {{p.pagination.start}}{{#if p.pagination.end}} to {{p.pagination.end}}{{/if}}
           {{/if}}
         </div>
         <div class="col-xs-4 text-right">
-          {{#if pagination.next || pagination.next === 0}}
-            <a href="{{{options.url}}}{{#if options.url && options.url.indexOf('?') >= 0}}&{{else}}?{{/if}}start={{pagination.next}}&length={{pagination.length}}&sort={{{options.sort.column}}}{{#if options.sort.desc}}&desc=true{{/if}}&term={{{term}}}">Next</a>
+          {{#if p.pagination.next || p.pagination.next === 0}}
+            <a href="#start={{p.pagination.next}}&length={{p.pagination.length}}&sort={{{p.sort.column}}}{{#if p.sort.desc}}&desc=true{{/if}}&term={{{p.term}}}">Next</a>
           {{/if}}
         </div>
       </div>
