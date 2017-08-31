@@ -32,6 +32,7 @@ function setupGrid(prefix, defaults) {
         '@media (max-width: 383px) { .grid-xxs-block { width: 100%; margin-bottom: 5px; } }' + 
         '.grid-spacer { padding-right: 10px } @media (max-width: 383px) { .grid-spacer { display: none; } }',
       data: {
+        selectAll: false,
         runTemplate: function(obj, t) {
           var r = new Ractive({
             delimiters: ['<%','%>'],
@@ -72,6 +73,17 @@ function setupGrid(prefix, defaults) {
           else{
             flash('error', 'No items selected');
           }
+        },
+        'select-all': function (e) {
+          var selected = this.get('selectAll');
+
+          var checks = _.mapValues(_.keyBy(this.get('p.list'), function (item) {
+            return item._id;
+          }), function (item) {
+            return selected;
+          });
+
+          this.set('p.checks', checks);
         }
       }
     });

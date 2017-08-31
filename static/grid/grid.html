@@ -68,7 +68,7 @@ options = {
                 {{#each options.columns:c}}
                   <th classes="{{{.classes}}}">
                     {{#if .isId}}
-                      <input type="checkbox" class="select-all" title="Select All" />
+                      <input type="checkbox" title="Select All" on-change="select-all" checked="{{selectAll}}" />
                     {{elseif .sortable || .sortable === undefined}}
                       <a href="#sort={{{c}}}{{#if p.sort.column === c && !p.sort.desc}}&desc=true{{/if}}{{#if p.term}}&term={{{p.term}}}{{/if}}">
                         {{#if .title}}{{{.title}}}{{else}}{{{c}}}{{/if}}
