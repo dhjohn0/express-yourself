@@ -1,12 +1,12 @@
 let _ = require('lodash');
 
 let fnName = (fn) => {
-  let regex = /^(function[\s]+)?(.*?)[\s]*({|=>)/;
+  let regex = /^(async[\s]+)?(function[\s]+)?(.*?)[\s]*({|=>)/;
   let matches = regex.exec(fn.toString());
 
   if (!matches)
     return '';
-  return matches[2];
+  return matches[3];
 }
 
 module.exports = class Controller {
