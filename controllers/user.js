@@ -1,6 +1,7 @@
 let bcrypt = require('bcrypt-nodejs');
 let uuid = require('uuid/v1');
 let Promise = require('bluebird');
+let fs = Promise.promisifyAll(require('fs'));
 
 let CrudController = require('./_crud-controller');
 
@@ -11,6 +12,12 @@ module.exports = class UserController extends CrudController {
   get userFriendlyName() { return 'User'; }
 
   get confirmEmail() { return false; }
+
+  validationMiddleware(req, res, next) {
+    if (req.files)
+      return next();
+    return super.validationMiddleware(req, res, next);
+  }
 
   async show(req, res, db) {
     //Not quite Restful, but it needed to go in a GET method
@@ -67,12 +74,30 @@ module.exports = class UserController extends CrudController {
   async update(req, res, db, _) {
     let user = req.body;
 
-    if (!user.password) {
-      let dbUser = await db.get(user._id);
-      user.password = dbUser.password;
-    }
+    if (req.files) {
+      let thisUser = await db.get(req.params.id);
+      let file = _.find(req.files, { fieldname: 'file' });
+      if (!file || !thisUser) {
+        req.flash('error', 'Could not upload file. Please try again');
+      }else{
+        let path = file.path;
+        let mime = file.mimetype;
 
-    super.update(req, res, db, _);
+        let buffer = await fs.readFileAsync(path);
+
+        await db.putAttachment(thisUser._id, 'photo', thisUser._rev, buffer, mime);
+        req.flash('success', 'Photo Uploaded');
+      }
+
+      return res.redirect(`/upload?url=%2Fuser%2F${req.params.id}%3F_method%3DPUT`);
+    }else{
+      if (!user.password) {
+        let dbUser = await db.get(user._id);
+        user.password = dbUser.password;
+      }
+
+      super.update(req, res, db, _);
+    }
   }
 
   actionChange(change, action) {
