@@ -79,24 +79,39 @@ module.exports = class UserController extends CrudController {
       let file = _.find(req.files, { fieldname: 'file' });
       if (!file || !thisUser) {
         req.flash('error', 'Could not upload file. Please try again');
+        return res.redirect(`/upload?url=%2Fuser%2F${req.params.id}%3F_method%3DPUT`);
       }else{
+        let name = file.originalname;
         let path = file.path;
         let mime = file.mimetype;
 
         let buffer = await fs.readFileAsync(path);
 
-        await db.putAttachment(thisUser._id, 'photo', thisUser._rev, buffer, mime);
-        req.flash('success', 'Photo Uploaded');
-      }
+        if (thisUser.photoId)
+          delete thisUser._attachments[thisUser.photoId];
+        thisUser.photoId = name;
+        let updateUserResult = await db.put(thisUser);
 
-      return res.redirect(`/upload?url=%2Fuser%2F${req.params.id}%3F_method%3DPUT`);
+        let response = await db.putAttachment(thisUser._id, name, updateUserResult.rev, buffer, mime);
+
+        return res.send(`
+          <html>
+            <body>
+              <script>
+                window.parent.updatePhoto('${name}');
+                window.location = '/upload?url=%2Fuser%2F${req.params.id}%3F_method%3DPUT';
+              </script>
+            </body>
+          </html>
+        `);
+      }
     }else{
       if (!user.password) {
         let dbUser = await db.get(user._id);
         user.password = dbUser.password;
       }
 
-      super.update(req, res, db, _);
+      return super.update(req, res, db, _);
     }
   }
 
