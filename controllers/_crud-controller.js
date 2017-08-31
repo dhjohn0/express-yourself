@@ -44,6 +44,7 @@ module.exports = class CrudController extends RestfulController {
     if (!req.accepts('text/html')) {
       let item = await db.get(req.params.id);
 
+      delete item.password;
       return res.json(item);
     }
     return res.render(`${this.type}/show`);
