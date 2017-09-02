@@ -56,9 +56,10 @@ module.exports = class CrudController extends RestfulController {
 
   async create(req, res, db, _) {
     let item = _.merge(req.body, {
-      _id: uuid(),
       type: this.type
     });
+    if (!item._id)
+      _id = uuid();
     await db.put(item);
     
     if (!req.accepts('text/html')) {
