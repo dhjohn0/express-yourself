@@ -11,7 +11,7 @@ module.exports = class SessionController extends Controller {
         res.render('session/login');
       },
       '/logout': (req, res, user) => {
-        this.log.info(`User ${user.email} logged out successfully`);
+        this.log.info(`User ${user.username} logged out successfully`);
         req.logout();
         req.flash('success', 'You have been successfully logged out');
 
@@ -25,18 +25,18 @@ module.exports = class SessionController extends Controller {
       '/login': [
         passport.authenticate('login', {
           failureRedirect: '/login',
-          failureFlash: 'Invalid email and/or password'
+          failureFlash: 'Invalid username and/or password'
         }),
         (req, res, user) => {
           req.flash('success', 'Welcome');
-          this.log.info(`User ${user.email} logged in successfully`);
+          this.log.info(`User ${user.username} logged in successfully`);
           res.redirect(req.query.redirect || '/');
         }
       ],
       '/logout': (req, res, user) => {
         req.logout();
         req.flash('success', 'You have been successfully logged out');
-        this.log.info(`User ${user.email} logged out successfully`);
+        this.log.info(`User ${user.username} logged out successfully`);
 
         res.redirect('/');
       }

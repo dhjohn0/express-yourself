@@ -39,30 +39,43 @@ module.exports = class UserController extends CrudController {
   async create(req, res, db, mailer, config, _) {
     let user = req.body;
 
-    let users = await db.query('user/byEmail', { 
-      key: user.email,
+    let users = await db.query('user/byUsername', { 
+      key: user.username,
       include_docs: true 
     });
 
     if (users.rows.length) {
-      req.flash('error', 'Given email is already in use by another account');
-      return res.redirect('/user/list');
+      req.flash('error', 'Given username is already in use by another account');
+      return res.redirect('/user/add');
     }else{
-      user.password = bcrypt.hashSync(user.password);
+      user._id = uuid();
+
+      let userPassword = {
+        _id: uuid(),
+        userId: user._id,
+        password: bcrypt.hashSync(user.password),
+        type: 'user-pass'
+      };
+      await db.put(userPassword);
+
+      delete user.password;
       user.enabled = true;
+      user.provider = 'local';
 
       if (this.confirmEmail) {
-        let url = req.get('host');
-        if (url) {
-          url = `${req.protocol}://${url}`;
-        }else{
-          url = config.hostname;
+        if (user.emails && user.emails.length) {
+          let url = req.get('host');
+          if (url) {
+            url = `${req.protocol}://${url}`;
+          }else{
+            url = config.hostname;
+          }
+          user.confirmationToken = uuid();
+          let response = await mailer.sendTemplate(user.emails[0], 'confirm-email', {
+            user,
+            confirmationLink: `${url}/user/${user._id}?token=${user.confirmationToken}`
+          });
         }
-        user.confirmationToken = uuid();
-        let response = await mailer.sendTemplate(user.email, 'confirm-email', {
-          user,
-          confirmationLink: `${url}/user/${user._id}?token=${user.confirmationToken}`
-        });
       }else{
         user.confirmed = true;
       }
@@ -74,8 +87,8 @@ module.exports = class UserController extends CrudController {
   async update(req, res, db, _) {
     let user = req.body;
 
+    let thisUser = await db.get(req.params.id);
     if (req.files) {
-      let thisUser = await db.get(req.params.id);
       let file = _.find(req.files, { fieldname: 'file' });
       if (!file || !thisUser) {
         req.flash('error', 'Could not upload file. Please try again');
@@ -87,9 +100,9 @@ module.exports = class UserController extends CrudController {
 
         let buffer = await fs.readFileAsync(path);
 
-        if (thisUser.photoId)
-          delete thisUser._attachments[thisUser.photoId];
-        thisUser.photoId = name;
+        if (thisUser.photo)
+          delete thisUser._attachments[thisUser.photo];
+        thisUser.photo = name;
         let updateUserResult = await db.put(thisUser);
 
         let response = await db.putAttachment(thisUser._id, name, updateUserResult.rev, buffer, mime);
@@ -106,10 +119,26 @@ module.exports = class UserController extends CrudController {
         `);
       }
     }else{
-      if (!user.password) {
-        let dbUser = await db.get(user._id);
-        user.password = dbUser.password;
+      user.username = thisUser.username;
+
+      if (user.password) {
+        let userPassword;
+
+        let _userPass = await db.query('user/userPassword', { key: user._id, include_docs: true });
+        if (_userPass.rows.length) {
+          userPassword = _userPass.rows[0].doc;
+        }else{
+           userPassword = {
+            _id: uuid(),
+            userId: user._id,
+            type: 'user-pass'
+          };
+        }
+        userPassword.password = bcrypt.hashSync(user.password);
+
+        await db.put(userPassword);
       }
+      delete user.password;
 
       return super.update(req, res, db, _);
     }
@@ -127,5 +156,26 @@ module.exports = class UserController extends CrudController {
         change.enabled = false;
         return 'Users disabled';
     }
+  }
+
+  async action(req, res, db, _) {
+    if (req.body.action === 'Delete') {
+      let ids = Array.isArray(req.body._id) || !req.body._id ? req.body._id : [ req.body._id ];
+    
+      if (ids && ids.length) {
+        let _passes = await db.query('user/userPassword', { 
+          keys: ids, 
+          include_docs: true 
+        });
+
+        let passes = _passes.rows.map(r => {
+          r.doc._deleted = true;
+          return r.doc;
+        });
+
+        await db.bulkDocs(passes);
+      }
+    }
+    return super.action(req, res, db, _);
   }
 };
