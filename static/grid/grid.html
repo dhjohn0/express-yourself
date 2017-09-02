@@ -70,9 +70,9 @@ options = {
                     {{#if .isId}}
                       <input type="checkbox" title="Select All" on-change="select-all" checked="{{selectAll}}" />
                     {{elseif .sortable || .sortable === undefined}}
-                      <a href="#sort={{{c}}}{{#if p.sort.column === c && !p.sort.desc}}&desc=true{{/if}}{{#if p.term}}&term={{{p.term}}}{{/if}}">
-                        {{#if .title}}{{{.title}}}{{else}}{{{c}}}{{/if}}
-                        {{#if p.sort.column === c}}
+                      <a href="#sort={{c.replace(/"/g, '')}}{{#if p.sort.column === c.replace(/"/g, '') && !p.sort.desc}}&desc=true{{/if}}{{#if p.term}}&term={{{p.term}}}{{/if}}">
+                        {{#if .title}}{{{.title}}}{{else}}{{c.replace(/"/g, '')}}{{/if}}
+                        {{#if p.sort.column === c.replace(/"/g, '')}}
                           <span class="glyphicon glyphicon-triangle-{{#if p.sort.desc}}bottom{{else}}top{{/if}}"></span>
                         {{/if}}
                       </a>
