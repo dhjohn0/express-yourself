@@ -32,7 +32,7 @@ Any .layout.hbs files in the root of your views folder will be loaded as a layou
 TODO
 ### Email Templating
 TODO
-### Cron Jobs (todo)
+### Cron Jobs
 TODO
 ### Elasticsearch Searching
 TODO
