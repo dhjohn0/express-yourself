@@ -1,0 +1,175 @@
+{{#extend "layout"}}
+  {{#append "body"}}
+    <div id="target"></div>
+    
+    {{{{raw}}}}
+    <script id="template" type="text/ractive">
+      {{#if provider !== 'local'}}
+        <div class="alert alert-info alert-dismissible" role="alert">
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          This user is managed by {{provider}}. Information will update on next login.
+        </div>
+      {{/if}}
+      <form on-submit="submit">
+        <div class="row">
+          <div class="col-xs-12 col-md-8">
+            <div class="form-group {{#if errors.email}}has-error{{/if}}">
+              <label>Email:</label>
+              {{#if _id}}
+                {{email}}
+              {{else}}
+                <input type="text" class="form-control" name="email" value="{{email}}" on-blur="['check','email']" />
+              {{/if}}
+            </div>
+            {{#if provider === 'local'}}
+              <div class="form-group {{#if errors.password}}has-error{{/if}}">
+                <label>Password:</label>
+                <input type="password" class="form-control" name="password" value="{{password}}" on-blur="['check','password']" />
+              </div>
+            {{/if}}
+            <div class="row">
+              <div class="col-xs-12 col-md-4">
+                <div class="form-group {{#if errors.namegivenName}}has-error{{/if}}">
+                  <label>First Name:</label>
+                  <input type="text" class="form-control" value="{{name.givenName}}" disabled="{{provider !== 'local'}}" on-blur="['check','name.givenName']" />
+                </div>
+              </div>
+              <div class="col-xs-12 col-md-4">
+                <div class="form-group">
+                  <label>Middle Name:</label>
+                  <input type="text" class="form-control" value="{{name.middleName}}" disabled="{{provider !== 'local'}}" on-blur="['check','name.middleName']" />
+                </div>
+              </div>
+              <div class="col-xs-12 col-md-4">
+                <div class="form-group {{#if errors.namefamilyName}}has-error{{/if}}">
+                  <label>Last Name:</label>
+                  <input type="text" class="form-control" value="{{name.familyName}}" disabled="{{provider !== 'local'}}" on-blur="['check','name.familyName']" />
+                </div>
+              </div>
+            </div>
+            <div class="panel panel-default">
+              <div class="panel-heading clearfix">
+                <label class="panel-title">Other Emails:</label>
+                {{#if provider === 'local'}}
+                  <input type="button" class="btn btn-primary btn-sm pull-right" value="Add" on-click="add-email" />
+                {{/if}}
+              </div>
+              <div class="panel-body">
+                {{#each emails:e}}
+                  <div class="row">
+                    <div class="col-xs-12">
+                      <div class="form-group">
+                        <input type="email" class="form-control" value="{{.value}}" on-blur="['check','emails.'+e]" />
+                      </div>
+                    </div>
+                  </div>
+                {{/each}}
+              </div>
+            </div>
+          </div>
+          
+          {{#if _id}}
+            <div class="col-xs-12 col-md-4">
+              {{#if photo}}
+                <div class="form-group">
+                  <img src="{{#if photo.indexOf('/') >= 0}}{{{photo}}}{{else}}/file/{{_id}}/{{photo}}{{/if}}" class="img-responsive" />
+                </div>
+              {{/if}}
+              {{#if provider === 'local'}}
+                <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#photo-modal">
+                  Upload Photo
+                </button>
+              {{/if}}
+              <div class="modal fade" id="photo-modal" tabindex="-1" role="dialog" aria-labelledby="photo-modal-label">
+                <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                      <h4 class="modal-title" id="photo-modal-label">Upload Photo</h4>
+                    </div>
+                    <div class="modal-body">
+                      <iframe src="/upload?url=%2Fuser%2F{{_id}}%3F_method%3DPUT" width="100%" height="200px" style="border: 0"></iframe>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {{/if}}
+        </div>
+        <div class="form-group">
+          <input type="submit" class="btn btn-primary" value="{{#if _id}}Save{{else}}Register{{/if}}" disabled="{{provider !== 'local'}}" />
+        </div>
+        {{#if errors}}
+          <div class="alert alert-danger" role="alert">
+            {{#each errors}}
+                <p>{{.}}</p>
+            {{/each}}
+          </div>
+        {{/if}}
+      </form>
+    </script>
+    {{{{/raw}}}}
+  {{/append}}
+
+  {{#append "scripts"}}
+    <script type="text/javascript" src="/libraries/check-yourself/cy.js"></script>
+    <script type="text/javascript" src="/libraries/check-yourself/cy.ractive.js"></script>
+    
+    <script>
+      var RactiveV = ractiveCheckYourself({{{validationOptions}}})
+
+      function setup(thisUser) {
+        var ractive = new RactiveV({
+          target: '#target',
+          template: '#template',
+          data: thisUser
+        });
+
+        ractive.on('add-email', function (e) {
+          e.event.preventDefault();
+
+          ractive.push('emails', {});
+        })
+
+        ractive.on('submit-passed', function (e) {
+          e.event.preventDefault();
+          
+          if (ractive.get('provider') !== 'local')
+            return;
+
+          {{#if params.id}}
+            api.update('/user', ractive.get()).then(function (response) {
+              if (response.success)
+                location.href = '/user/list';
+            });
+          {{else}}
+            api.create('/user', ractive.get()).then(function (response) {
+              if (response.success)
+                location.href = '/user/list';
+            });
+          {{/if}}
+        });
+
+        window.updatePhoto = function (photo) {
+          $('#photo-modal').modal('hide');
+
+          ractive.set('photo', photo);
+          api.get('/user', '{{params.id}}').then(function (dbUser) {
+            ractive.set('_attachments', dbUser._attachments);
+          });
+        }
+      }
+
+      {{#if params.id}}
+        api.get('/user', '{{params.id}}').then(setup);
+      {{else}}
+        setup({
+          provider: 'local'
+        });
+      {{/if}}
+    </script>
+  {{/append}}
+{{/extend}}

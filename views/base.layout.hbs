@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    {{#block "styles"}}
+      <link rel="stylesheet" href="/libraries/bootstrap/css/bootstrap.min.css">
+      <link rel="stylesheet" href="/libraries/font-awesome/css/font-awesome.css">
+    {{/block}}
+  </head>
+  <body>
+    {{#block "header"}}
+    {{/block}}
+    
+    {{#block "body"}}
+    {{/block}}
+
+    {{#block "footer"}}
+    {{/block}}
+
+    {{#block "scripts"}}
+      <script src="/libraries/jquery/jquery.js"></script>
+      <script src="/libraries/bluebird/bluebird.js"></script>
+      <script src="/libraries/bootstrap/js/bootstrap.min.js"></script>
+      <script src="/libraries/ractive/ractive.js"></script>
+      <script src="/libraries/ractive/ractive-events-keys.js"></script>
+      <script src="/libraries/lodash/lodash.js"></script>
+
+      <script src="/api.js"></script>
+    {{/block}}
+  </body>
+</html>

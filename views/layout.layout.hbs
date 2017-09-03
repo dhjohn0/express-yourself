@@ -1,8 +1,65 @@
-<html>
-  <head>
-  </head>
-  <body>
-    {{#block "body"}}
-    {{/block}}
-  </body>
-</html>
+{{#extend "base"}}
+  
+  {{#append "header"}}
+    <nav class="navbar navbar-default">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse" aria-expanded="false">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/">Brands</a>
+        </div>
+
+        <div class="collapse navbar-collapse" id="navbar-collapse">
+          <ul class="nav navbar-nav">
+            {{#if user}}
+              <li><a href="/user/list">User List</a></li>
+              {{#if user.roles.admin}}<li><a href="/email-template/list">Email Templates</a></li>{{/if}}
+              {{#if user.roles.admin}}<li><a href="/log/list">Logs</a></li>{{/if}}
+            {{/if}}
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            {{#if user}}
+              <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Hello {{user.email}} <span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                  <li><a href="/user/{{user._id}}/edit">Edit Profile</a></li>
+                  <li><a href="/logout">Logout</a></li>
+                </ul>
+              </li>
+            {{else}}
+              <li><a href="/login">Login</a></li>
+            {{/if}}
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <div class="container">
+      <div id="flash-container">
+        {{#if flash.success}}<div class="alert alert-success alert-dismissible" role="alert">
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          {{flash.success}}
+        </div>{{/if}}
+        {{#if flash.info}}<div class="alert alert-info alert-dismissible" role="alert">
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          {{flash.info}}
+        </div>{{/if}}
+        {{#if flash.warn}}<div class="alert alert-warning alert-dismissible" role="alert">
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          {{flash.warn}}
+        </div>{{/if}}
+        {{#if flash.error}}<div class="alert alert-danger alert-dismissible" role="alert">
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          {{flash.error}}
+        </div>{{/if}}
+      </div>
+  {{/append}}
+
+  {{#append "footer"}}
+    </div>
+  {{/append}}
+
+{{/extend}}

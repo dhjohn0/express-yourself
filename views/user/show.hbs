@@ -1,0 +1,50 @@
+{{#extend "layout"}}
+  {{#append "body"}}
+    <div id="target"></div>
+    
+    {{{{raw}}}}
+    <script id="template" type="text/ractive">
+    <div class="row">
+      <div class="col-xs-12 col-md-8">
+        <div class="form-group">
+          <label>Email:</label> {{thisUser.email}}
+        </div>
+        <div class="form-group">
+          <label>First Name:</label> {{thisUser.name.givenName}}
+        </div>
+        <div class="form-group">
+          <label>Last Name:</label> {{thisUser.name.familyName}}
+        </div>
+      </div>
+      <div class="col-xs-12 col-md-4">
+        {{#if thisUser.photo}}
+          <div class="form-group">
+            <img src="{{#if thisUser.photo.indexOf('/') >= 0}}{{{thisUser.photo}}}{{else}}/file/{{thisUser._id}}/{{thisUser.photo}}{{/if}}" class="img-responsive" />
+          </div>
+        {{/if}}
+      </div>
+    </div>
+      {{#if thisUser.provider === 'local' && (user._id === thisUser._id || typeof(user.roles.admin) === 'object' || user.roles.admin === true)}}
+        <div class="form-group">
+          <a href="/user/{{thisUser._id}}/edit" class="btn btn-primary">Edit</a>
+        </div>
+      {{/if}}
+    </script>
+    {{{{/raw}}}}
+  {{/append}}
+
+  {{#append "scripts"}}
+    <script>
+      api.get('/user', '{{params.id}}').then(function (thisUser) {
+        var ractive = new Ractive({
+          target: '#target',
+          template: '#template',
+          data: {
+            user: {{{json user}}},
+            thisUser: thisUser
+          }
+        });
+      })
+    </script>
+  {{/append}}
+{{/extend}}

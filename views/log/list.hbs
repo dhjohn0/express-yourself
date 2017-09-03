@@ -1,0 +1,41 @@
+{{#extend "layout"}}
+  {{#append "body"}}
+    <div id="target"></div>
+    
+    {{{{raw}}}}
+      <script id="template" type="text/ractive">
+        <grid p="{{p}}" options="{
+          columns: {
+            timestamp: {
+              title: 'Timestamp',
+              template: '<% params.timestamp %>',
+              sortable: false
+            },
+            level: {
+              title: 'Level',
+              template: '<% params.level %>',
+              sortable: false
+            },
+            message: {
+              title: 'Message',
+              template: '<% params.message %>',
+              sortable: false
+            }
+          },
+          rowClasses: '<% params.level === \'warn\' ? \'warning\' : params.level === \'error\' ? \'danger\' : \'\' %>',
+          noResultsMessage: 'No Logs Found'
+        }" />
+      </script>
+    {{{{/raw}}}}
+  {{/append}}
+
+  {{#append "scripts"}}
+    <script type="text/javascript" src="/grid/grid.js"></script>
+    
+    <script>
+      setupGrid('/log', {
+        length: 20
+      });
+    </script>
+  {{/append}}
+{{/extend}}

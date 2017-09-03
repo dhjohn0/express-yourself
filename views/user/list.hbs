@@ -1,0 +1,52 @@
+{{#extend "layout"}}
+  {{#append "body"}}
+    <div id="target"></div>
+    
+    {{{{raw}}}}
+      <script id="template" type="text/ractive">
+        <grid p="{{p}}" options="{
+          actionUrl: '/user/action',
+          searchable: true,
+          actions: {
+            Add: { href: '/user/add', showOnEmpty: true, classes: 'btn-primary' },
+            Spacer0: { spacer: true },
+            Enable: {},
+            Disable: {},
+            Delete: { classes: 'btn-danger' }
+          },
+          columns: {
+            _id: { isId: true },
+            'email': {
+              title: 'Email',
+              template: '<a href=\'/user/<% _id %>\'><% email %> <%#if provider === \'facebook\' %><i class=\'fa fa-facebook-official\' aria-hidden=\'true\'></i><%/if%></a>'
+            },
+            'name.givenName': {
+              title: 'First Name',
+              template: '<% name.givenName %>'
+            },
+            'name.familyName': {
+              title: 'Last Name',
+              template: '<% name.familyName %>'
+            },
+            enabled: {
+              title: 'Enabled',
+              sortable: false,
+              template: '<span class=\'glyphicon glyphicon-<%#if .enabled%>ok<%else%>remove<%/if%>\'></span>'
+            }
+          },
+          noResultsMessage: 'Nothin'
+        }" />
+      </script>
+    {{{{/raw}}}}
+  {{/append}}
+
+  {{#append "scripts"}}
+    <script type="text/javascript" src="/grid/grid.js"></script>
+    
+    <script>
+      setupGrid('/user', {
+        sort: 'email'
+      });
+    </script>
+  {{/append}}
+{{/extend}}

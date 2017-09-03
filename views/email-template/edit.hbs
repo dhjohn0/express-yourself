@@ -1,0 +1,73 @@
+{{#extend "layout"}}
+  {{#append "body"}}
+    <div id="target"></div>
+    
+    {{{{raw}}}}
+    <script id="template" type="text/ractive">
+      <form action="/email-template" method="post" on-submit="submit">
+        <div class="form-group">
+          <label>Name:</label>
+          <input type="text" class="form-control" name="name" value="{{name}}"/>
+        </div>
+        <div class="form-group">
+          <label>Subject:</label>
+          <input type="text" class="form-control" name="subject" value="{{subject}}"/>
+        </div>
+        <div class="form-group">
+          <label>Body:</label>
+          <textarea class="form-control" name="body" rows="10" value="{{body}}"></textarea>
+        </div>
+        <div class="form-group">
+          <input type="submit" class="btn btn-primary" value="Save"/>
+        </div>
+        {{#if errors}}
+          <div class="alert alert-danger" role="alert">
+            {{#each errors}}
+                <p>{{.}}</p>
+            {{/each}}
+          </div>
+        {{/if}}
+      </form>
+    </script>
+    {{{{/raw}}}}
+  {{/append}}
+
+  {{#append "scripts"}}
+    <script type="text/javascript" src="/libraries/check-yourself/cy.js"></script>
+    <script type="text/javascript" src="/libraries/check-yourself/cy.ractive.js"></script>
+    
+    <script>
+      var RactiveV = ractiveCheckYourself({{{validationOptions}}})
+
+      function setup(thisTemplate) {
+        var ractive = new RactiveV({
+          target: '#target',
+          template: '#template',
+          data: thisTemplate
+        });
+
+        ractive.on('submit-passed', function (e) {
+          e.event.preventDefault();
+          
+          {{#if params.id}}
+            api.update('/email-template', ractive.get()).then(function (response) {
+              if (response.success)
+                location.href = '/email-template/list';
+            });
+          {{else}}
+            api.create('/email-template', ractive.get()).then(function (response) {
+              if (response.success)
+                location.href = '/email-template/list';
+            });
+          {{/if}}
+        });
+      }
+
+      {{#if params.id}}
+        api.get('/email-template', '{{params.id}}').then(setup);
+      {{else}}
+        setup({});
+      {{/if}}
+    </script>
+  {{/append}}
+{{/extend}}

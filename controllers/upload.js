@@ -8,7 +8,7 @@ module.exports = class UploadController extends Controller {
   get get() {
     return {
       '/upload': (req, res) => {
-        res.render('upload/index', { isIframe: true });
+        res.render('upload/index');
       },
       '/file/:docId/:fileId': async (req, res, db) => {
         let doc = await db.get(req.params.docId);

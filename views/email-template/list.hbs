@@ -1,0 +1,31 @@
+{{#extend "layout"}}
+  {{#append "body"}}
+    <div id="target"></div>
+    
+    {{{{raw}}}}
+      <script id="template" type="text/ractive">
+        <grid p="{{p}}" options="{
+          searchable: true,
+          columns: {
+            name: {
+              title: 'Name',
+              template: '<a href=\'/email-template/<% _id %>\'><% name %></a>'
+            },
+            subject: { title: 'Subject' }
+          },
+          noResultsMessage: 'No Email Templates Found'
+        }" />
+      </script>
+    {{{{/raw}}}}
+  {{/append}}
+
+  {{#append "scripts"}}
+    <script type="text/javascript" src="/grid/grid.js"></script>
+    
+    <script>
+      setupGrid('/email-template', {
+        sort: 'name'
+      });
+    </script>
+  {{/append}}
+{{/extend}}
