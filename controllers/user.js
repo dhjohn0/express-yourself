@@ -22,6 +22,8 @@ module.exports = class UserController extends CrudController {
   async show(req, res, db) {
     //Not quite Restful, but it needed to go in a GET method
     if (req.query.token) {
+      let user = await db.get(req.params.id);
+
       if (req.query.token === user.confirmationToken) {
         delete user.confirmationToken;
         user.confirmed = true;
@@ -33,7 +35,7 @@ module.exports = class UserController extends CrudController {
       }
     }
 
-    return super.show(req, res, db);
+    return await super.show(req, res, db);
   }
 
   async create(req, res, db, mailer, config, _) {
