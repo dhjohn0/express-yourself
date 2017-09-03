@@ -11,12 +11,24 @@ module.exports = class SessionController extends Controller {
         res.render('session/login');
       },
       '/logout': (req, res, user) => {
-        this.log.info(`User ${user.username} logged out successfully`);
+        this.log.info(`User ${user.email} logged out successfully`);
         req.logout();
         req.flash('success', 'You have been successfully logged out');
 
         res.redirect('/');
-      }
+      },
+      '/login/facebook': passport.authenticate('facebook'),
+      '/login/facebook/callback': [
+        passport.authenticate('facebook', {
+          failureRedirect: '/login',
+          failureFlash: 'Could not log you in via Facebook.'
+        }),
+        (req, res, user) => {
+          req.flash('success', 'Welcome');
+          this.log.info(`User ${user.email} logged in successfully`);
+          res.redirect(req.query.redirect || '/');
+        }
+      ]
     };
   }
 
@@ -29,14 +41,14 @@ module.exports = class SessionController extends Controller {
         }),
         (req, res, user) => {
           req.flash('success', 'Welcome');
-          this.log.info(`User ${user.username} logged in successfully`);
+          this.log.info(`User ${user.email} logged in successfully`);
           res.redirect(req.query.redirect || '/');
         }
       ],
       '/logout': (req, res, user) => {
         req.logout();
         req.flash('success', 'You have been successfully logged out');
-        this.log.info(`User ${user.username} logged out successfully`);
+        this.log.info(`User ${user.email} logged out successfully`);
 
         res.redirect('/');
       }

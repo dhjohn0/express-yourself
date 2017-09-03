@@ -1,7 +1,7 @@
 module.exports = [
   {
     _id: 'e36268c2-77e7-11e7-b151-a30ece72b02b',
-    username: 'admin',
+    email: 'admin@admin.com',
     provider: 'local',
     name: {
       givenName: 'Admin',
@@ -9,12 +9,7 @@ module.exports = [
       familyName: 'Admin'
     },
     displayName: 'Admin',
-    emails: [
-      {
-        value: 'admin@ey.com',
-        type: 'work'
-      }
-    ],
+    emails: [],
     roles: {
       admin: {}
     },

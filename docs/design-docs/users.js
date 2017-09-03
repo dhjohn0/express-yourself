@@ -11,12 +11,20 @@ module.exports = {
         emit(doc._id, null);
       }
     },
-    byUsername: {
+    byEmail: {
       map: function (doc) {
-        if (!doc || !doc.type || doc.type !== 'user' || !doc.username)
+        if (!doc || !doc.type || doc.type !== 'user' || !doc.email)
           return;
 
-        emit(doc.username, null);
+        emit(doc.email, null);
+      }
+    },
+    byFacebookId: {
+      map: function (doc) {
+        if (!doc || !doc.type || doc.type !== 'user' || doc.provider !== 'facebook' || !doc.providerId)
+          return;
+
+        emit(doc.providerId, null);
       }
     },
     forList: {

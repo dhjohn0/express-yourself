@@ -39,13 +39,13 @@ module.exports = class UserController extends CrudController {
   async create(req, res, db, mailer, config, _) {
     let user = req.body;
 
-    let users = await db.query('user/byUsername', { 
-      key: user.username,
+    let users = await db.query('user/byEmail', { 
+      key: user.email,
       include_docs: true 
     });
 
     if (users.rows.length) {
-      req.flash('error', 'Given username is already in use by another account');
+      req.flash('error', 'Given email is already in use by another account');
       return res.redirect('/user/add');
     }else{
       user._id = uuid();
@@ -63,19 +63,17 @@ module.exports = class UserController extends CrudController {
       user.provider = 'local';
 
       if (this.confirmEmail) {
-        if (user.emails && user.emails.length) {
-          let url = req.get('host');
-          if (url) {
-            url = `${req.protocol}://${url}`;
-          }else{
-            url = config.hostname;
-          }
-          user.confirmationToken = uuid();
-          let response = await mailer.sendTemplate(user.emails[0], 'confirm-email', {
-            user,
-            confirmationLink: `${url}/user/${user._id}?token=${user.confirmationToken}`
-          });
+        let url = req.get('host');
+        if (url) {
+          url = `${req.protocol}://${url}`;
+        }else{
+          url = config.hostname;
         }
+        user.confirmationToken = uuid();
+        let response = await mailer.sendTemplate(user.email, 'confirm-email', {
+          user,
+          confirmationLink: `${url}/user/${user._id}?token=${user.confirmationToken}`
+        });
       }else{
         user.confirmed = true;
       }
@@ -88,6 +86,19 @@ module.exports = class UserController extends CrudController {
     let user = req.body;
 
     let thisUser = await db.get(req.params.id);
+
+    if (thisUser.provider !== 'local') {
+      if (!req.accepts('text/html')) {
+        return res.json({
+          success: false,
+          message: `Cannot update '${thisUser.email}'. User is managed by ${thisUser.provider}`
+        });
+      }else{
+        req.flash('error', `Cannot update '${thisUser.email}'. User is managed by ${thisUser.provider}`);
+        return res.redirect(`/user/${thisUser._id}/edit`);
+      }
+    }
+
     if (req.files) {
       let file = _.find(req.files, { fieldname: 'file' });
       if (!file || !thisUser) {
@@ -119,7 +130,7 @@ module.exports = class UserController extends CrudController {
         `);
       }
     }else{
-      user.username = thisUser.username;
+      user.email = thisUser.email;
 
       if (user.password) {
         let userPassword;
@@ -135,7 +146,6 @@ module.exports = class UserController extends CrudController {
           };
         }
         userPassword.password = bcrypt.hashSync(user.password);
-
         await db.put(userPassword);
       }
       delete user.password;
