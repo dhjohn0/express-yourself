@@ -12,36 +12,6 @@ let validationInjectMiddleware = (validation) => {
   }
 };
 
-let validationMiddleware = (validation) => {
-  if (validation) {
-    let cy = new CheckYourself(validation);
-
-    return function (req, res, next) {
-      let obj = req.body;
-      let result = cy.check(obj);
-      if (result.failed) {
-        if (!req.accepts('text/html')) {
-          res.json({
-            success: false,
-            errors: result.errors
-          });
-        }else{
-          res.render('error', {
-            header: 'Validation Failed',
-            errors: result.errors
-          });
-        }
-      }else{
-        next();
-      }
-    }
-  }else{
-    return function (req, res, next) {
-      next();
-    }
-  }
-}
-
 module.exports = class RestfulController extends Controller {
   get validation() { return undefined; }
 
