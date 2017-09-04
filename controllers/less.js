@@ -5,7 +5,7 @@ let path = require('path');
 
 let Controller = require('./_controller');
 
-module.exports = class SessionController extends Controller {
+module.exports = class LessController extends Controller {
 
   cache(key, value) {
     if (!this.cacheObj)
@@ -19,7 +19,9 @@ module.exports = class SessionController extends Controller {
   get get() {
     return {
       '/less/:filename': async (req, res, config) => {
-        let output = this.cache(req.params.filename);
+        let output = null;
+        if (!config.develop)
+          output = this.cache(req.params.filename);
         if (!output) {
           this.log.debug(`Compiling less file '${req.params.filename}' to CSS`);
           let file = null;
