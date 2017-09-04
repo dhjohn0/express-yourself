@@ -79,6 +79,16 @@ describe('lib/config', () => {
       assert.equal(config.logging.file, path.join(__dirname, 'logs', 'log.txt'));
     });
 
+    it('should skip building config.logging.file path when config.logging.file is false', () => {
+      let config = require('../lib/config')(__dirname, {
+        logging: {
+          file: false
+        }
+      });
+
+      assert.equal(config.logging.file, false);
+    });
+
     it('should build db name', () => {
       let config = require('../lib/config')('', {
         db: {
