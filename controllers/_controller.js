@@ -10,9 +10,10 @@ let fnName = (fn) => {
 }
 
 module.exports = class Controller {
-  constructor(router, log) {
+  constructor(router, log, di) {
     this.router = router;
     this.log = log;
+    this.di = di;
 
     this.configRouter();  
   }
@@ -29,21 +30,21 @@ module.exports = class Controller {
         route.unshift(this.authorize);
 
         route = route.map((fx, index) => {
-          return (req, res, next) => {
+          return async (req, res, next) => {
             this.log.debug(`Calling '${fnName(fx)}' for route '${req.method}:${req.path}'`);
-            return Promise.resolve().then(() => {
-              return this.router.di.invoke(fx, this, {
+            try{
+              return await this.di.invoke(fx, this, {
                 req, res, next
               });
-            }).catch(err => {
+            }catch(err) {
               this.log.error(err);
               res.status(500);
-              res.send(
+              return res.send(
 `<html lang="en"><head><meta charset="utf-8"><title>Error</title></head>
 <body><pre>${err.stack ? err.stack.replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/ /g, '&nbsp;').replace(/\n/g, '<br/>') : ''}</pre>
 </body></html>`
               );
-            });
+            };
           }
         });
 
