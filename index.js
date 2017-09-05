@@ -5,7 +5,8 @@ let PouchDB = require('pouchdb');
 
 module.exports = async (appDirectory, config) => {
   //Setup injection
-  let di = require('./lib/di')();
+  let DependencyInjector = require('./lib/di');
+  let di = new DependencyInjector();
   di.value('appDirectory', appDirectory);
   di.value('config', config);
   di.value('di', di);
