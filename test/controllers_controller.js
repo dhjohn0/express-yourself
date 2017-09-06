@@ -2,10 +2,10 @@ let assert = require('assert');
 let sinon = require('sinon');
 
 describe('controllers/Controller', () => {
+  let Controller = require('../controllers/_controller');
+
   describe('#constructor(router, log)', () => {
     it('should assign args to object', () => {
-      let Controller = require('../controllers/_controller');
-      
       class TestController extends Controller {
         configRouter() {}
       }
@@ -20,7 +20,6 @@ describe('controllers/Controller', () => {
     });
 
     it('should call configRouter', () => {
-      let Controller = require('../controllers/_controller');
       let configRouterSpy = sinon.stub();
       
       class TestController extends Controller {
@@ -39,8 +38,6 @@ describe('controllers/Controller', () => {
 
   describe('#configRouter()', () => {
     it('should call router.get with correct route', () => {
-      let Controller = require('../controllers/_controller');
-
       class TestController extends Controller {
         get get() {
           return {
@@ -67,7 +64,6 @@ describe('controllers/Controller', () => {
     });
 
     it('should pass addLocals and authorize to router.post', async () => {
-      let Controller = require('../controllers/_controller');
       class TestController extends Controller {
         get post() {
           return {
@@ -103,7 +99,6 @@ describe('controllers/Controller', () => {
     });
 
     it('should pass route fx to router.post', async () => {
-      let Controller = require('../controllers/_controller');
       let fx = () => {}
 
       class TestController extends Controller {
@@ -140,7 +135,6 @@ describe('controllers/Controller', () => {
     });
 
     it('should pass all route fxs to router.post when given an array of routes', async () => {
-      let Controller = require('../controllers/_controller');
       let fx = () => {};
       let fx2 = (req) => {};
 
@@ -179,7 +173,6 @@ describe('controllers/Controller', () => {
     });
 
     it('should invoke each route fx with controller as the context', async () => {
-      let Controller = require('../controllers/_controller');
       let fx = () => {}
 
       class TestController extends Controller {
@@ -216,7 +209,6 @@ describe('controllers/Controller', () => {
     });
 
     it('should send an 500 response if an exception was thrown', async () => {
-      let Controller = require('../controllers/_controller');
       let fx = () => {}
 
       class TestController extends Controller {
@@ -264,7 +256,6 @@ describe('controllers/Controller', () => {
 
   describe('#addLocals(req, res, next)', () => {
     it('should apply flash to locals', () => {
-      let Controller = require('../controllers/_controller');
       class TestController extends Controller {
         configRouter() {}
       }
@@ -289,7 +280,6 @@ describe('controllers/Controller', () => {
     });
 
     it('should apply user to locals', () => {
-      let Controller = require('../controllers/_controller');
       class TestController extends Controller {
         configRouter() {}
       }
@@ -310,7 +300,6 @@ describe('controllers/Controller', () => {
     });
 
     it('should apply query and params to locals', () => {
-      let Controller = require('../controllers/_controller');
       class TestController extends Controller {
         configRouter() {}
       }
@@ -339,7 +328,6 @@ describe('controllers/Controller', () => {
 
   describe('#authorize()', () => {
     it('should call next()', () => {
-      let Controller = require('../controllers/_controller');
       class TestController extends Controller {
         configRouter() {}
       }
