@@ -8,14 +8,14 @@ module.exports = class SessionController extends Controller {
   get get() {
     return {
       '/login': function (req, res) {
-        res.render('session/login');
+        return res.render('session/login');
       },
       '/logout': (req, res, user) => {
         this.log.info(`User ${user.email} logged out successfully`);
         req.logout();
         req.flash('success', 'You have been successfully logged out');
 
-        res.redirect('/');
+        return res.redirect('/');
       },
       '/login/facebook': passport.authenticate('facebook'),
       '/login/facebook/callback': [
@@ -26,7 +26,7 @@ module.exports = class SessionController extends Controller {
         (req, res, user) => {
           req.flash('success', 'Welcome');
           this.log.info(`User ${user.email} logged in successfully`);
-          res.redirect(req.query.redirect || '/');
+          return res.redirect(req.query.redirect || '/');
         }
       ]
     };
