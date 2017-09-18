@@ -4,7 +4,7 @@ let RestfulController = require('./_restful-controller');
 
 module.exports = class CrudController extends RestfulController {
   get type() { return undefined; }
-  get views() { return type; }
+  get views() { return this.type; }
 
   get userFriendlyName() { return undefined; }
 
