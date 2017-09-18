@@ -4,6 +4,7 @@ let RestfulController = require('./_restful-controller');
 
 module.exports = class CrudController extends RestfulController {
   get type() { return undefined; }
+  get views() { return type; }
 
   get userFriendlyName() { return undefined; }
 
@@ -37,7 +38,7 @@ module.exports = class CrudController extends RestfulController {
         term: req.query.term
       });
     }
-    return res.render(`${this.type}/list`);
+    return res.render(`${this.views}/list`);
   }
 
   async show(req, res, db) {
@@ -47,11 +48,11 @@ module.exports = class CrudController extends RestfulController {
       delete item.password;
       return res.json(item);
     }
-    return res.render(`${this.type}/show`);
+    return res.render(`${this.views}/show`);
   }
 
   add(req, res) {
-    res.render(`${this.type}/edit`);
+    res.render(`${this.views}/edit`);
   }
 
   async create(req, res, db, _) {
@@ -74,7 +75,7 @@ module.exports = class CrudController extends RestfulController {
   }
 
   edit(req, res) {
-    res.render(`${this.type}/edit`);
+    res.render(`${this.views}/edit`);
   }
 
   async update(req, res, db, _) {
