@@ -1,7 +1,9 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+<html {{#block "htmlAttrs"}}{{/block}}>
+  <head {{#block "headAttrs"}}{{/block}}>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
     
     {{#block "styles"}}
       <link rel="stylesheet" href="/libraries/bootstrap/css/bootstrap.min.css">
@@ -10,7 +12,7 @@
       <link rel="stylesheet" href="/less/ey.css">
     {{/block}}
   </head>
-  <body>
+  <body {{#block "bodyAttrs"}}{{/block}}>
     {{#block "header"}}
     {{/block}}
     
