@@ -43,8 +43,12 @@
 
       return ajax('GET', prefix + q);
     },
-    get: function (prefix, id) {
-      return ajax('GET', prefix + '/' + id);
+    get: function (prefix, id, params) {
+      var q = '';
+      if (params) {
+        q = '?' + _.map(_.toPairs(params), function (p) { return p[0] + '=' + p[1]; }).join('&');
+      }
+      return ajax('GET', prefix + '/' + id + q);
     },
     create: function (prefix, item) {
       return ajax('POST', prefix + '/', item);
