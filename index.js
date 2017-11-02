@@ -44,9 +44,15 @@ module.exports = async (appDirectory, config) => {
   di.value('passport', passport);
   app.passport = passport;
   
+  //Setup middlewares
+  di.invoke(require('./lib/middlewares'));
+
   di.value('_', _);
   di.factory('user', function (req) {
     return req.user;
+  });
+  di.factory('session', function (req) {
+    return req.session;
   });
 
   //Setup Mailer
