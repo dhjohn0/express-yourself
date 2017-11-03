@@ -1,6 +1,8 @@
-function setupGrid(prefix, defaults) {
+function setupGrid(prefix, defaults, data) {
   if (!defaults)
     defaults = {};
+  if (!data) 
+    data = {};
   
   function getHash() {
     return _.mapValues(_.keyBy(_.map(_.filter(location.hash.split('&'), function (s) {
@@ -92,7 +94,7 @@ function setupGrid(prefix, defaults) {
     var ractive = new Ractive({
       target: '#target',
       template: '#template',
-      data: {}
+      data: data
     });
 
     function load() {
