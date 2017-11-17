@@ -2,11 +2,30 @@ let uuid = require('uuid/v1');
 
 let RestfulController = require('./_restful-controller');
 
+function reqReplace(str, params) {
+  for (let p in params) {
+    let reg = ':' + p.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    str = str.replace(new RegExp(reg, 'g'), params[p]);
+  };
+
+  return str;
+}
+
 module.exports = class CrudController extends RestfulController {
   get type() { return undefined; }
   get views() { return this.type; }
 
   get userFriendlyName() { return undefined; }
+
+  get autoCreateDefault() {
+    return {};
+  }
+
+  constructor(router, log, di, autoCreate = false) {
+    super(router, log, di);
+
+    this.autoCreate = autoCreate;
+  }
 
   async list(req, res, db, search, config) {
     if (!req.accepts('text/html')) {
@@ -52,8 +71,19 @@ module.exports = class CrudController extends RestfulController {
     return res.render(`${this.views}/show`);
   }
 
-  add(req, res) {
-    res.render(`${this.views}/edit`);
+  async add(req, res, db, _) {
+    if (this.autoCreate) {
+      let item = await this.create(_.merge({}, req, {
+        accepts: (contentType) => {
+          return contentType.indexOf('text/html') < 0;
+        },
+        body: this.autoCreateDefault
+      }), null, db, _);
+
+      res.redirect(`${reqReplace(this.prefix, req.params)}/${item._id}/edit`);
+    }else{
+      res.render(`${this.views}/edit`);
+    }
   }
 
   async create(req, res, db, _) {
@@ -61,17 +91,20 @@ module.exports = class CrudController extends RestfulController {
       type: this.type
     });
     if (!item._id)
-      _id = uuid();
+      item._id = uuid();
     await db.put(item);
     
     if (!req.accepts('text/html')) {
+      if (!res)
+        return item;
+
       res.json({
         success: true,
         message: `${this.userFriendlyName} created`
       });
     }else{
       req.flash('success', `${this.userFriendlyName} created`);
-      res.redirect(`${this.prefix}/list`);
+      res.redirect(`${reqReplace(this.prefix, req.params)}/list`);
     }
   }
 
@@ -96,7 +129,7 @@ module.exports = class CrudController extends RestfulController {
       });
     }else{
       req.flash('success', `${this.userFriendlyName} updated`);
-      res.redirect(`${this.prefix}/list`);
+      res.redirect(`${reqReplace(this.prefix, req.params)}/list`);
     }
   }
 
@@ -113,7 +146,7 @@ module.exports = class CrudController extends RestfulController {
       });
     }else{
       req.flash('success', `${this.userFriendlyName} deleted`);
-      res.redirect(`${this.prefix}/list`);
+      res.redirect(`${reqReplace(this.prefix, req.params)}/list`);
     }
   }
 
@@ -146,7 +179,7 @@ module.exports = class CrudController extends RestfulController {
         });
       }else{
         req.flash('success', resultMessage);
-        res.redirect(`${this.prefix}/list`);
+        res.redirect(`${reqReplace(this.prefix, req.params)}/list`);
       }
     }else{
       if (!req.accepts('text/html')) {
@@ -156,7 +189,7 @@ module.exports = class CrudController extends RestfulController {
         });
       }else{
         req.flash('error', `No ${this.type}s selected`);
-        res.redirect(`${this.prefix}/list`);
+        res.redirect(`${reqReplace(this.prefix, req.params)}/list`);
       }
     }
   }
